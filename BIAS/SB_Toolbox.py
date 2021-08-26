@@ -12,16 +12,22 @@ import seaborn as sbs
 pwr = importr('PoweR')
 
 #TODO: make sure these directories are correct
-def load_ref_vals(n_samples):
+def load_ref_vals(n_samples, alpha = 0.01, across = False):
     ''' Load the reference values needed for calculating the p-values
     ----------
     n_samples: the sample size used for the statistical tests. Can only be 
     in [30,50,100,600]
     '''
-    with open(f"Crit_vals/S{n_samples}_A{0.01}_with_refs.pkl", 'rb') as f:
-        _, ref_vals = pickle.load(f)
-    with open(f"Crit_vals_pwr/S{n_samples}_A{0.01}_with_refs.pkl", 'rb') as f:
-        _, ref_vals_new = pickle.load(f)
+    if across:
+        with open(f"Crit_vals_across/S{n_samples}_A{alpha}_with_refs.pkl", 'rb') as f:
+            ref_vals, _ = pickle.load(f)
+        with open(f"Crit_vals_pwr_across/S{n_samples}_A{alpha}_with_refs.pkl", 'rb') as f:
+            ref_vals_new, _ = pickle.load(f)
+    else:
+        with open(f"Crit_vals/S{n_samples}_A{alpha}_with_refs.pkl", 'rb') as f:
+            _, ref_vals = pickle.load(f)
+        with open(f"Crit_vals_pwr/S{n_samples}_A{alpha}_with_refs.pkl", 'rb') as f:
+            _, ref_vals_new = pickle.load(f)
     return ref_vals, ref_vals_new
 
 p_value_columns = ['1-spacing', '2-spacing', '3-spacing','ad', 'ad_transform', 'shapiro', 'jb', 'ddst']
@@ -204,7 +210,7 @@ def predict_type(dt_rej,  print_type = False):
     return {'Class' : res_class[0], 'Class Probabilities' : prob_classes, 
             'Scenario' : res_scen[0], 'Scenario Probabilities' : prob_scens}
     
-def run_SB_test(data, corr_method = 'fdr_by', alpha=0.01, show_figure=False, filename = None, print_type = False):
+def run_SB_test(data, corr_method = 'fdr_by', alpha=0.01, show_figure=False, filename = None, print_type = True):
     ''' The main function used to detect Structural Bias
     ----------
     data: The matrix containing the final position values on F0. Note that these should be scaled 
@@ -220,6 +226,8 @@ def run_SB_test(data, corr_method = 'fdr_by', alpha=0.01, show_figure=False, fil
     n_samples = data.shape[0]
     if not n_samples in [30,50,100,600]:
         raise ValueError("Sample size is not supported")
+    if print_type:
+        print(f"Running SB calculation with {DIM}-dimensional data of sample size {n_samples} (alpha = {alpha})")
     records = {}    
     test_battery_per_dim = get_test_dict(n_samples)
     for tname, tfunc in test_battery_per_dim.items():
@@ -239,3 +247,60 @@ def run_SB_test(data, corr_method = 'fdr_by', alpha=0.01, show_figure=False, fil
         plot_swarm_with_heatmap(data, dt_rejections, filename)
     
     return dt_rejections, predict_type(dt_rejections, print_type)
+
+
+def transform_to_reject_dt_across(dt, alpha, n_samples):
+    crit_vals, crit_vals_new = load_ref_vals(n_samples, alpha, True)
+    test_types_new = get_test_types_new()    
+    
+    dt_rejections = pd.DataFrame()
+    for colname in p_value_columns:
+        dt_rejections[colname] = dt[colname] < alpha
+        
+    #Ugly solution to distinguish two-sided vs one-sided tests
+    dt_rejections['kurtosis'] = (crit_vals['kurtosis_low'] > dt['kurtosis']) | (dt['kurtosis'] > crit_vals['kurtosis_high'])
+    dt_rejections['mmpd'] = (crit_vals['mmpd_low'] > dt['mmpd']) | (dt['mmpd'] > crit_vals['mmpd_high'])
+    dt_rejections['mi'] = (crit_vals['mi_low'] > dt['mi']) | (dt['mi'] > crit_vals['mi_high'])
+    dt_rejections['med_ddlud'] = (crit_vals['med_ddlud_low'] > dt['med_ddlud']) | (dt['med_ddlud'] > crit_vals['med_ddlud_high'])
+    for k,v in crit_vals.items():
+        if 'kurt' in k or 'low' in k or 'high' in k:
+            next
+        else:
+            if k in ['max_ddlud']:
+                dt_rejections[k] = dt[k] > v
+            else:
+                dt_rejections[k] = dt[k] < v
+                
+    for k,v in crit_vals_new.items():
+        if test_types_new[k] == 4:
+            dt_rejections[k] = dt[k] < v
+        else:
+            dt_rejections[k] = dt[k] > v
+    return dt_rejections
+
+def run_multidim_sb_tests(data, alpha=0.01, print_type = True):
+    DIM = data.shape[1]
+    n_samples = data.shape[0]
+    if not n_samples in [30,50,100,600]:
+        raise ValueError("Sample size is not supported")
+    if DIM != 30:
+        raise ValueError("Only 30-dimensional data is supported for across-dimension testing")
+    if print_type:
+        print(f"Running SB calculation with {DIM}-dimensional data of sample size {n_samples} (alpha = {alpha})")
+    records = {}    
+    test_battery_across_dim = get_test_dict(n_samples, per_dim=False)
+    for tname, tfunc in test_battery_across_dim.items():
+        try:
+            records[tname] = tfunc(data)
+        except:
+            next
+    #TODO: fix this function
+    dt = pd.DataFrame(dict([ (k,pd.Series(v)) for k,v in records.items() ]))
+    dt_rejections = transform_to_reject_dt_across(dt, alpha, n_samples)
+    failed_tests = [x for x in dt_rejections.columns if np.sum(dt_rejections[x]) > 0 ]
+    if print_type:
+        if len(failed_tests == 0):
+            print('No clear evidence of bias detected')
+        else:
+            print(f'The following tests detected potential structural bias: {failed_tests}')
+    return failed_tests
