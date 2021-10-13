@@ -1,8 +1,4 @@
-import rpy2
-import rpy2.robjects as robjects
-from rpy2.robjects.packages import importr
-from rpy2.robjects import numpy2ri
-from rpy2.robjects import pandas2ri
+
 
 import numpy as np
 import pandas as pd
@@ -15,26 +11,12 @@ from sklearn.metrics import adjusted_mutual_info_score, pairwise_distances_argmi
 
 import sys
 
-importr('data.table')
-importr('goftest')
-ddst = importr('ddst')
-pwr = importr('PoweR')
+#importr('data.table')
+#importr('goftest')
+#ddst = importr('ddst')
+#pwr = importr('PoweR')
 
-robjects.r('''
-R_test_ad <- function(x, max_=1) {
-    return(ad.test(x, "punif", max=max_, min=0)[[2]])
-}
 
-R_test_norm <- function(x, test='Shapiro') {
-    qnorm_temp <- qnorm(x)
-    qnorm_temp[is.infinite(qnorm_temp)] <- 4*sign(qnorm_temp[is.infinite(qnorm_temp)])
-    if (test == 'Shapiro') {
-        return(shapiro.test(qnorm_temp)[[2]])
-    } else {
-        return(AutoSEARCH::jb.test(qnorm_temp)$p.value)
-    }
-}
-''')
 
 def get_mi(X, type_='med'):
     mutuals = []
