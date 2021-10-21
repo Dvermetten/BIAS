@@ -99,13 +99,13 @@ def get_simulated_data(scen, rep=1000, n_samples = 100, kwargs = {}):
         nr_req = n_samples * rep
         data_temp = ss.cauchy.rvs(kwargs['mu'], kwargs['sigma'], size=(nr_req*10))
         data_arr = [x for x in data_temp if 0 < x < 1][:nr_req]
-        data_arr = [1.5 - x if x > 0.5 else 0.5 - x for x in data_arr] #Not efficient, but works. Maybe improve later
+        data_arr = [1+ kwargs['mu'] - x if x > kwargs['mu'] else kwargs['mu'] - x for x in data_arr] #Not efficient, but works. Maybe improve later
         data_arr = np.array(data_arr).reshape((n_samples,rep))
     elif scen == 'inv_norm':
         nr_req = n_samples * rep
-        data_temp = np.random.normal(0.5, kwargs['sigma'], size=(nr_req*10))
+        data_temp = np.random.normal(kwargs['mu'], kwargs['sigma'], size=(nr_req*10))
         data_arr = [x for x in data_temp if 0 < x < 1][:nr_req]
-        data_arr = [1.5 - x if x > 0.5 else 0.5 - x for x in data_arr] #Not efficient, but works. Maybe improve later
+        data_arr = [1+ kwargs['mu'] - x if x > kwargs['mu'] else kwargs['mu'] - x for x in data_arr] #Not efficient, but works. Maybe improve later
         data_arr = np.array(data_arr).reshape((n_samples,rep))
     elif scen == 'gaps': 
         temp = []
@@ -146,6 +146,16 @@ def get_simulated_data(scen, rep=1000, n_samples = 100, kwargs = {}):
 #             new_points = [x + y for x,y in zip(data_temp, deviations) if 0 < x+y < 1]
             data_new = np.append(data_temp[:n_unif], data_new[:(n_samples-n_unif)])
             temp.append(data_new)
+        data_arr = np.array(temp).transpose()
+    elif scen == 'bound_thing':
+        temp = []
+        for _ in range(rep):
+            n_01 = int(np.ceil((1-kwargs['frac_between'])*n_samples))
+            data_temp = np.random.uniform(size=(n_samples))
+            data_temp[np.random.choice(range(n_samples), n_01, replace=False)] = np.random.choice([0,1], size=n_01, p=[kwargs['frac_0'],1-kwargs['frac_0']])
+#             for idx in np.random.randint(0, n_samples, n_01):
+#                 data_temp[idx] = np.random.csv"
+            temp.append(np.array(data_temp))
         data_arr = np.array(temp).transpose()
     return data_arr
 
@@ -486,6 +496,23 @@ def get_scens_across_dim():
     for n_unif in [0.1, 0.25, 0.5]:
         for sigma in [0.01, 0.02, 0.05, 0.1]:
             scens.append(['part_unif', {'frac_unif' : n_unif, 'sigma' : sigma}])
+    return scens
+
+def get_scens_inv():
+    #Get only the inv-based scenarios
+    scens = []
+    for sigma in [0.1, 0.2, 0.3, 0.4, 0.5]:
+        for mu in [0.6, 0.7]:
+            scens.append(['inv_norm', {'sigma' : sigma, 'mu' : mu}])
+            scens.append(['inv_cauchy', {'sigma' : sigma, 'mu' : mu}])
+    return scens
+
+def get_scens_bound():
+    #Get only the added heavy-bound scenario
+    scens = []
+    for f_0 in [0.1, 0.35, 0.45, 0.5]:
+        for f_between in [0.5, 0.25, 0.1, 0.05, 0.025, 0.01]:
+            scens.append(['bound_thing', {'frac_between' : f_between, 'frac_0' : f_0}])
     return scens
 
 def run_test_cases(n_samples, fname="Datatables", per_dim=True, rep=1500):
