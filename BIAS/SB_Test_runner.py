@@ -428,19 +428,19 @@ def run_scenario(scen_list, foldername = "", rep=1500, alpha=0.01, n_samples = 1
 
 def get_scens_per_dim():
     scens = [['unif', {}]]
-    for temp in [0.01, 0.025, 0.05, 0.1, 0.2]:
+    for temp in [0.025, 0.05, 0.1, 0.2]:
         scens.append(['trunc_unif', {'min' : temp/2, 'max' : 1-temp/2}])
+    for temp in [0.025, 0.05, 0.1, 0.2]:
         scens.append(['trunc_unif', {'min' : temp, 'max' : 1}])
-    for max_ in [25, 50, 100, 150, 200, 250, 500, 1000]:
+    for max_ in [25, 50, 100, 150, 200, 250, 500]:
         scens.append(['spikes', {'max' : max_}])
+    for max_ in [25, 50, 100, 150, 200, 250, 500]:
         for sigma in [0.005,0.01, 0.02, 0.03, 0.04, 0.05]:
             scens.append(['shifted_spikes', {'max' : max_, 'sigma' : sigma}])
-    for sigma in [0.1, 0.2, 0.3, 0.4, 0.5]:
-        for mu in [0.5, 0.6, 0.7]:
-            scens.append(['norm', {'sigma' : sigma, 'mu' : mu}])
-            scens.append(['inv_norm', {'sigma' : sigma, 'mu' : mu}])
-            scens.append(['cauchy', {'sigma' : sigma, 'mu' : mu}])
-            scens.append(['inv_cauchy', {'sigma' : sigma, 'mu' : mu}])
+    for s in ['norm', 'inv_norm', 'cauchy', 'inv_cauchy']:
+        for sigma in [0.1, 0.2, 0.3, 0.4]:
+            for mu in [0.5, 0.6, 0.7]:
+                scens.append([s, {'sigma' : sigma, 'mu' : mu}])
     for n_centers in [1,2,3,4,5]:
         for gap_rad in [0.01, 0.02, 0.03, 0.04, 0.05]:
             scens.append(['gaps', {'n_centers' : n_centers, 'sigma' : gap_rad}])
