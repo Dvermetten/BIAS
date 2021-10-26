@@ -450,6 +450,9 @@ def get_scens_per_dim():
     for n_unif in [0.1, 0.25, 0.5]:
         for sigma in [0.01, 0.02, 0.05, 0.1]:
             scens.append(['part_unif', {'frac_unif' : n_unif, 'sigma' : sigma}])
+    for f_0 in [0.1, 0.35, 0.45, 0.5]:
+        for f_between in [0.5, 0.25, 0.1, 0.05, 0.025, 0.01]:
+            scens.append(['bound_thing', {'frac_between' : f_between, 'frac_0' : f_0}])
     return scens
 
 def get_scens_across_dim():
