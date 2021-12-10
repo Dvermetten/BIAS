@@ -50,4 +50,6 @@ print(test.predict(samples, show_figure=True))
 
 ## Additional files
 
-Note: The code for generating the RF used to predict the type of bias is included, but the full RF is not. These can be found on zenodo: https://doi.org/10.6084/m9.figshare.16546041. Note that in order to generate these RFs, the raw data of rejections (also on the same zenodo page) is needed, and the paths to the data should be modified accordingly.
+Note: The code for generating the RF used to predict the type of bias is included, but the full RF is not. These can be found on zenodo: https://doi.org/10.6084/m9.figshare.16546041.
+The RF models will be downloaded automatically the first time the predict function requires them.
+
