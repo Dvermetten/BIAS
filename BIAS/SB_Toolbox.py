@@ -2,8 +2,13 @@ from .SB_Test_runner import get_test_dict
 import numpy as np
 import pandas as pd
 import pickle
+import requests
+from io import BytesIO
+from zipfile import ZipFile
 from rpy2.robjects.packages import importr
 import rpy2.robjects as robjects
+import rpy2.robjects.packages as rpackages
+from rpy2.robjects.vectors import StrVector
 from statsmodels.stats.multitest import multipletests
 from scipy.stats import percentileofscore
 import matplotlib.pyplot as plt
@@ -11,6 +16,14 @@ import seaborn as sbs
 import os
 
 pwr = importr('PoweR')
+
+def install_r_packages():
+    """Install the required R packages.
+    """
+    utils = rpackages.importr('utils')
+    utils.chooseCRANmirror(ind=1) # select the first mirror in the list
+    packnames = ('PoweR', 'AutoSEARCH', 'nortest', 'data.table', 'goftest', 'ddst')
+    utils.install_packages(StrVector(packnames))
 
 def f0(x):
     """f0 random function, to be used a objective function to test optimization algorithms.
@@ -27,6 +40,9 @@ class BIAS():
     def __init__(self):
         """BIAS toolbox for predicting bias in black box optimization algorithms.
         Predicts both the presence of bias and the bias type. Use f0 as objective function for at least 30 independent optimization runs.
+
+        Args:
+            install_r (bool): if set to True, try to install the required R packages automatically.
         """
         self.p_value_columns = ['1-spacing', '2-spacing', '3-spacing','ad', 'ad_transform', 'shapiro', 'jb', 'ddst']
 
@@ -231,15 +247,22 @@ class BIAS():
             if print_type:
                 print('No clear evidence of bias detected')
             return 'none'
-        
         dirname = os.path.dirname(__file__)
-        with open(f"{dirname}/models/rf_few_classes.pkl", "rb") as input_file:
+
+        #download RF models if needed from 
+        if (not os.path.isfile(f"{dirname}/models/RFs/rf_few_classes.pkl")):
+            print("Downloading model files, this takes a while..")
+            r = requests.get("https://figshare.com/ndownloader/files/31145971")
+            zipfile = ZipFile(BytesIO(r.content))
+            zipfile.extractall(f"{dirname}/models/")
+        
+        with open(f"{dirname}/models/RFs/rf_few_classes.pkl", "rb") as input_file:
             rf = pickle.load(input_file)
         res_class = rf.predict(mean_rej.reshape(1, -1))
         classes = rf.classes_
         prob_classes = rf.predict_proba(mean_rej.reshape(1, -1))
         
-        with open(f"{dirname}/models/rf_rejection_based.pkl", "rb") as input_file:
+        with open(f"{dirname}/models/RFs/rf_scens.pkl", "rb") as input_file:
             rf = pickle.load(input_file)
         res_scen = rf.predict(mean_rej.reshape(1, -1))
         scennames = rf.classes_

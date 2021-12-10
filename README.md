@@ -14,21 +14,11 @@ This package requires an R-installation to be present, with the following packag
 ### Detailed setup
 
 1. Download and install R from https://cran.r-project.org/
-2. Install R packages
-
-    ```R
-    install.packages("PoweR")
-    install.packages("AutoSEARCH")
-    install.packages("nortest")
-    install.packages("data.table")
-    install.packages("goftest")
-    install.packages("ddst")
-    ```
-3. Download this repository (clone or as zip)
-4. Create a python virtual env `python -m venv env`
-5. Activate the env (in powershell for example: `env/Scripts/Activate.ps1 `)
-6. Install dependencies `pip install -r requirements.txt`
-7. Checkout the `example.py` to start using the BIAS toolbox.
+2. Download this repository (clone or as zip)
+3. Create a python virtual env `python -m venv env`
+4. Activate the env (in powershell for example: `env/Scripts/Activate.ps1 `)
+5. Install dependencies `pip install -r requirements.txt`
+6. Checkout the `example.py` to start using the BIAS toolbox.
 
 
 ## Example
@@ -38,7 +28,10 @@ This package requires an R-installation to be present, with the following packag
 
 from scipy.optimize import differential_evolution
 import numpy as np
-from BIAS import BIAS, f0
+from BIAS import BIAS, f0, install_r_packages
+
+#run first time to install required R packages
+install_r_packages()
 
 bounds = [(0,1), (0, 1), (0, 1), (0, 1), (0, 1)]
 
