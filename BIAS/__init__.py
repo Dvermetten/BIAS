@@ -1,6 +1,6 @@
-from .SB_Toolbox import run_SB_test, f0
+from .SB_Toolbox import BIAS, f0
 
 __all__ = (
-    "run_SB_test",
+    "BIAS",
     "f0"
 )
