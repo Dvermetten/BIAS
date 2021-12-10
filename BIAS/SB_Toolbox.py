@@ -1,4 +1,4 @@
-from SB_Test_runner import get_test_dict
+from .SB_Test_runner import get_test_dict
 import numpy as np
 import pandas as pd
 import pickle
@@ -8,6 +8,7 @@ from statsmodels.stats.multitest import multipletests
 from scipy.stats import percentileofscore
 import matplotlib.pyplot as plt
 import seaborn as sbs
+import os
 
 pwr = importr('PoweR')
 
@@ -42,20 +43,21 @@ class BIAS():
         Returns:
             list, list: two lists of reference values loaded from files.
         """
+        dirname = os.path.dirname(__file__)
         if across:
-            with open(f"data/Crit_vals_across/S{n_samples}_A{alpha}_with_refs.pkl", 'rb') as f:
+            with open(f"{dirname}/data/Crit_vals_across/S{n_samples}_A{alpha}_with_refs.pkl", 'rb') as f:
                 ref_vals, _ = pickle.load(f)
-            with open(f"data/Crit_vals_pwr_across/S{n_samples}_A{alpha}_with_refs.pkl", 'rb') as f:
+            with open(f"{dirname}/data/Crit_vals_pwr_across/S{n_samples}_A{alpha}_with_refs.pkl", 'rb') as f:
                 ref_vals_new, _ = pickle.load(f)
         else:
-            with open(f"data/Crit_vals/S{n_samples}_A{alpha}_with_refs.pkl", 'rb') as f:
+            with open(f"{dirname}/data/Crit_vals/S{n_samples}_A{alpha}_with_refs.pkl", 'rb') as f:
                 _, ref_vals = pickle.load(f)
-            with open(f"data/Crit_vals_pwr/S{n_samples}_A{alpha}_with_refs.pkl", 'rb') as f:
+            with open(f"{dirname}/data/Crit_vals_pwr/S{n_samples}_A{alpha}_with_refs.pkl", 'rb') as f:
                 _, ref_vals_new = pickle.load(f)
         return ref_vals, ref_vals_new
 
 
-    def _get_test_types():
+    def _get_test_types(self):
         """Helper function for the poweR-based tests.
 
         Returns:
@@ -192,8 +194,8 @@ class BIAS():
         dt_molt = data_dt.melt()
         dt_molt['variable'] = dt_molt['variable'] + 1.5
         sbs.swarmplot(data=dt_molt, x='variable', y='value', ax=ax1)
-        ax1.set_xlim(-0.5, 29.5)
-        for dim in range(30):
+        ax1.set_xlim(-0.5, self.DIM-0.5)
+        for dim in range(self.DIM):
             c0 = ax1.get_children()[dim]
             c0.set_offsets([[x+0.5,y] for x,y in c0.get_offsets()])
             ax1.axvline(dim, color='k', lw=0.6, ls=':')
@@ -202,7 +204,7 @@ class BIAS():
 
         ax1.set_xlabel("")
         axs[1].set_xlabel("Dimension", fontsize=16)
-        axs[1].set_xticklabels(range(1,31), fontsize=14)
+        axs[1].set_xticklabels(range(1,self.DIM+1), fontsize=14)
         axs[1].set_yticklabels(axs[1].get_yticklabels(), fontsize=14)
         ax1.set_ylabel("Value", fontsize=16)
         ax1.set_ylim(0,1)
@@ -230,13 +232,14 @@ class BIAS():
                 print('No clear evidence of bias detected')
             return 'none'
         
-        with open("models/rf_few_classes.pkl", "rb") as input_file:
+        dirname = os.path.dirname(__file__)
+        with open(f"{dirname}/models/rf_few_classes.pkl", "rb") as input_file:
             rf = pickle.load(input_file)
         res_class = rf.predict(mean_rej.reshape(1, -1))
         classes = rf.classes_
         prob_classes = rf.predict_proba(mean_rej.reshape(1, -1))
         
-        with open("models/rf_rejection_based.pkl", "rb") as input_file:
+        with open(f"{dirname}/models/rf_rejection_based.pkl", "rb") as input_file:
             rf = pickle.load(input_file)
         res_scen = rf.predict(mean_rej.reshape(1, -1))
         scennames = rf.classes_
@@ -267,17 +270,17 @@ class BIAS():
         Returns:
             dataframe, dict: rejection data, predicted Bias and type.
         """
-        DIM = data.shape[1]
+        self.DIM = data.shape[1]
         n_samples = data.shape[0]
         if not n_samples in [30,50,100,600]:
             raise ValueError("Sample size is not supported")
         if print_type:
-            print(f"Running SB calculation with {DIM}-dimensional data of sample size {n_samples} (alpha = {alpha})")
+            print(f"Running SB calculation with {self.DIM}-dimensional data of sample size {n_samples} (alpha = {alpha})")
         records = {}    
         test_battery_per_dim = get_test_dict(n_samples)
         for tname, tfunc in test_battery_per_dim.items():
             temp = []
-            for r in range(DIM):
+            for r in range(self.DIM):
                 try:
                     temp.append(tfunc(data[:,r], alpha=alpha))
                 except:
