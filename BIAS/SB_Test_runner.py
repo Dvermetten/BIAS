@@ -432,9 +432,9 @@ def get_scens_per_dim():
         scens.append(['trunc_unif', {'min' : temp/2, 'max' : 1-temp/2}])
     for temp in [0.025, 0.05, 0.1, 0.2]:
         scens.append(['trunc_unif', {'min' : temp, 'max' : 1}])
-    for max_ in [25, 50, 100, 150, 200, 250, 500]:
+    for max_ in [25, 50, 100, 150, 200, 250]:
         scens.append(['spikes', {'max' : max_}])
-    for max_ in [25, 50, 100, 150, 200, 250, 500]:
+    for max_ in [25, 50, 100, 150, 200, 250]:
         for sigma in [0.005,0.01, 0.02, 0.03, 0.04, 0.05]:
             scens.append(['shifted_spikes', {'max' : max_, 'sigma' : sigma}])
     for s in ['norm', 'inv_norm', 'cauchy', 'inv_cauchy']:
