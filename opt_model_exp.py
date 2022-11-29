@@ -85,7 +85,7 @@ for n_samples in [100,200,500]:
     model = clf.export_model()
     model.summary()
     model.save(f"opt_cnn_model-{n_samples}.h5")
-    tf.keras.utils.plot_model(model, to_file="opt_cnn_model-{n_samples}.png")
+    tf.keras.utils.plot_model(model, to_file=f"opt_cnn_model-{n_samples}.png")
 
     class newmodel(MLPClassifier):
         def __init__(self, model):
@@ -96,5 +96,5 @@ for n_samples in [100,200,500]:
 
     model1 = newmodel(model)
     fig, ax = plt.subplots(figsize=(14, 14))
-    plot_confusion_matrix(model1, X_test, np.argmax(y_test, axis=1), normalize='true', xticks_rotation = 'vertical', display_labels = list(np.unique(targetnames)), ax=ax) 
+    plot_confusion_matrix(model1, X_test, np.argmax(y_test, axis=1), normalize='true', xticks_rotation = 'vertical', display_labels = targetnames, ax=ax) 
     plt.savefig("opt_cnn_model-{n_samples}-confusion.png")
