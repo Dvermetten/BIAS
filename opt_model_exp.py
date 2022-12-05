@@ -3,7 +3,7 @@ import pandas as pd
 from tensorflow.keras.utils import to_categorical
 import matplotlib.pyplot as plt
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
 
 from sklearn.metrics import plot_confusion_matrix
 from sklearn.neural_network import MLPClassifier
@@ -16,7 +16,7 @@ from BIAS.SB_Test_runner import get_scens_per_dim, get_simulated_data
 rep = 20000
 n_samples = 100
 
-for n_samples in [50,600]:
+for n_samples in [30,600]:
 
     scenes = get_scens_per_dim()
     per_label = {"unif":0, "centre":0, "bounds":0, "gaps/clusters":0, "disc":0}
@@ -97,4 +97,4 @@ for n_samples in [50,600]:
     model1 = newmodel(model)
     fig, ax = plt.subplots(figsize=(14, 14))
     plot_confusion_matrix(model1, X_test, np.argmax(y_test, axis=1), normalize='true', xticks_rotation = 'vertical', display_labels = targetnames, ax=ax) 
-    plt.savefig("opt_cnn_model-{n_samples}-confusion.png")
+    plt.savefig(f"opt_cnn_model-{n_samples}-confusion.png")
