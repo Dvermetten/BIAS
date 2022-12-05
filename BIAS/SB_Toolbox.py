@@ -337,20 +337,6 @@ class BIAS():
             plt.savefig(filename)
         plt.close()
 
-    test_y = np.argmax(y_test, axis=1)
-    for i in range(len(hat_y)):
-        if hat_y[i] != test_y[i]:
-            shap_val = explainer.shap_values(X_test[i:i+1])
-            plot_explanation(X_test[i], 
-                hat_y_real[i], 
-                targetnames,
-                shap_val[hat_y[i]][0], 
-                shap_val[test_y[i]][0], 
-                targetnames[hat_y[i]], 
-                targetnames[test_y[i]], 
-                f"misclassifications/{n_samples}prediction{i}.png")
-
-        
     
     def predict_deep(self, data, include_proba=True):
         """Predict the BIAS using our neural network.
