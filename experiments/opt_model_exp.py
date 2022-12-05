@@ -16,7 +16,7 @@ from SB_Test_runner import get_scens_per_dim, get_simulated_data
 rep = 20000
 n_samples = 100
 
-for n_samples in [30,600]:
+for n_samples in [30,50,100,600]:
 
     scenes = get_scens_per_dim()
     per_label = {"unif":0, "centre":0, "bounds":0, "gaps/clusters":0, "disc":0}
@@ -84,7 +84,7 @@ for n_samples in [30,600]:
 
     model = clf.export_model()
     model.summary()
-    model.save(f"opt_cnn_model-{n_samples}.h5")
+    model.save(f"opt_cnn_model-{n_samples}.tf")
     tf.keras.utils.plot_model(model, to_file=f"opt_cnn_model-{n_samples}.png")
 
     class newmodel(MLPClassifier):

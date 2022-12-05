@@ -7,6 +7,7 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 import json
+from tqdm import tqdm
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 from sklearn.metrics import plot_confusion_matrix
@@ -34,7 +35,7 @@ class biasmodel(MLPClassifier):
 
     def predict(self, X):
         y = []
-        for x in X_test:
+        for x in tqdm(X_test):
             rejec, pred = self.test.predict(x, show_figure=False, print_type=False)
             
             if (pred == "none"):
@@ -112,6 +113,7 @@ for n_samples in [50,100,200,500]:
     from sklearn.metrics import f1_score
 
     model = tf.keras.models.load_model(f"BIAS/models/opt_cnn_model-{n_samples}.h5")
+    model.save(f"BIAS/models/opt_cnn_model-{n_samples}.tf")
     model.summary()
     print(
         "Accuracy: {accuracy}".format(

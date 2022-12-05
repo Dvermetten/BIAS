@@ -2,6 +2,7 @@ from .SB_Test_runner import get_test_dict, get_scens_per_dim, get_simulated_data
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import autokeras as ak
 import pickle
 import requests
 from io import BytesIO
@@ -54,6 +55,7 @@ def getXAIBackground(n_samples=30, rep=20):
         data = get_simulated_data(label, rep=rep, n_samples = 50, kwargs=kwargs)
         for r in range(rep):
             X.append(np.sort(data[:,r]))
+    X = np.expand_dims(X, axis=2)
     return np.array(X)
 
 class BIAS():
@@ -309,18 +311,21 @@ class BIAS():
         """
         #calculate the shapley values per dim
 
-        fig, axes = plt.subplots(nrows=data.shape[1], ncols=2)
+        fig, axes = plt.subplots(nrows=data.shape[1], ncols=2, figsize=(12, data.shape[1] * 2), gridspec_kw={'width_ratios': [1, 3]})
         for d in range(data.shape[1]):
-            shap_val = self.explainer.shap_values([np.sort(data[:,d])])
+            x = [np.sort(data[:,d])]
+            x = np.expand_dims(x, axis=2)
+            shap_val = self.explainer.shap_values(x)
+            print(preds[d])
             y = np.argmax(preds[d], axis=1) #prediction of the dimension
-            shap_vals_pred = shap_val[y][0]
+            shap_vals_pred = shap_val[y[0]][0]
 
             cmap = sbs.color_palette('coolwarm', as_cmap=True)
             norm = plt.Normalize(vmin=-1*np.max(np.abs(shap_vals_pred)), vmax=np.max(np.abs(shap_vals_pred)))  # 0 and 1 are the defaults, but you can adapt these to fit other uses
             df = pd.DataFrame({"x": np.sort(data[:,d]).flatten(), "shap": shap_vals_pred.flatten()})
             palette = {h: cmap(norm(h)) for h in df['shap']}
-            axes[d,0].bar(self.targetnames, preds[d])
-            plt.xticks(rotation=30, ha='right')
+            axes[d,0].bar(self.targetnames, preds[d][0])
+            axes[d,0].tick_params(axis='x', labelrotation = 30)
             axes[d,0].set_title("Prediction probabilities")
             axes[d,0].set_ylim([0,1])
 
@@ -357,8 +362,10 @@ class BIAS():
         if not n_samples in [50,100]:
             raise ValueError("Sample size is not supported")
         if (self.deepmodel == None):
-            self.deepmodel = tf.keras.models.load_model(f"models/opt_cnn_model-{n_samples}.h5")
-            self.targetnames = np.load("models/targetnames.npy")
+            dirname = os.path.dirname(__file__)
+            #download RF models if needed from 
+            self.deepmodel = tf.keras.models.load_model(f"{dirname}/models/opt_cnn_model-{n_samples}.h5")
+            self.targetnames = np.load(f"{dirname}/models/targetnames.npy", allow_pickle=True)
             #loading explainable background samples and loading the explainer
             self.xai_background = getXAIBackground(data.shape[0])
             self.explainer = shap.DeepExplainer(self.deepmodel, self.xai_background)
@@ -366,7 +373,8 @@ class BIAS():
         for d in range(data.shape[1]):
             #perform per dimension test
             x = np.sort(data[:,d])
-            preds.append(self.deepmodel.predict([x]))
+            x = np.expand_dims([x], axis=2)
+            preds.append(self.deepmodel.predict(x))
         pred_mean = np.mean(preds, axis=1)
         y = np.argmax(pred_mean, axis=1)
         if include_proba:
