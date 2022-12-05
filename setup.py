@@ -22,6 +22,7 @@ setuptools.setup(
     install_requires=[
         'numpy',
         'tensorflow',
+        'shap',
         'rpy2',
         'scipy',
         'pandas',
