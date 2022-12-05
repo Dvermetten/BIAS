@@ -4,7 +4,7 @@ from scipy.optimize import differential_evolution
 import numpy as np
 from BIAS import BIAS, f0, install_r_packages
 
-install_r_packages()
+#install_r_packages()
 
 bounds = [(0,1), (0, 1), (0, 1), (0, 1), (0, 1)]
 

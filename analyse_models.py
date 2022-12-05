@@ -4,6 +4,8 @@ import pandas as pd
 from tensorflow.keras.utils import to_categorical
 import matplotlib.pyplot as plt
 import os
+import warnings
+warnings.filterwarnings('ignore')
 import json
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
@@ -13,14 +15,45 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import autokeras as ak
 #load data
-from SB_Test_runner import get_scens_per_dim, get_simulated_data
+from BIAS.SB_Test_runner import get_scens_per_dim, get_simulated_data
+from BIAS import BIAS, f0, install_r_packages
 
 class newmodel(MLPClassifier):
     def __init__(self, model):
         self.model = model
+
     def predict(self, X):
         y = self.model.predict(X)
         return np.argmax(y, axis=1)
+
+class biasmodel(MLPClassifier):
+    def __init__(self, model, targetnames):
+        self.model = model
+        self.test = BIAS()
+        self.targetnames = targetnames
+
+    def predict(self, X):
+        y = []
+        for x in X_test:
+            rejec, pred = self.test.predict(x, show_figure=False, print_type=False)
+            
+            if (pred == "none"):
+                class_pred = "unif"
+            elif (pred["Class"] == "Bounds"):
+                class_pred = "bounds"
+            elif (pred["Class"] == "Gaps"):
+                class_pred = "gaps/clusters"
+            elif (pred["Class"] == "Clusters"):
+                class_pred = "gaps/clusters"
+            elif (pred["Class"] == "Center"):
+                class_pred = "centre"
+            elif (pred["Class"] == "Discretization"):
+                class_pred = "disc"
+            else:
+                print(pred)
+            y.append(targetnames.index(class_pred))
+            
+        return np.array(y)
 
 #settings for this experiment
 rep = 20000
@@ -78,7 +111,7 @@ for n_samples in [50,100,200,500]:
     #load model
     from sklearn.metrics import f1_score
 
-    model = tf.keras.models.load_model(f"models/opt_cnn_model-{n_samples}.h5")
+    model = tf.keras.models.load_model(f"BIAS/models/opt_cnn_model-{n_samples}.h5")
     model.summary()
     print(
         "Accuracy: {accuracy}".format(
@@ -88,7 +121,7 @@ for n_samples in [50,100,200,500]:
             f1 = f1_score(np.argmax(y_test, axis=1), np.argmax(model.predict(X_test), axis=1), average='macro')
         )
     )
-    tf.keras.utils.plot_model(model, to_file=f"models/opt_cnn_model-{n_samples}.png")
+    tf.keras.utils.plot_model(model, to_file=f"experiments/models/opt_cnn_model-{n_samples}.png")
 
     model1 = newmodel(model)
     hat_y_real = model.predict(X_test)
@@ -99,7 +132,7 @@ for n_samples in [50,100,200,500]:
     fig, ax = plt.subplots(figsize=(14, 14))
     np.save("targetnames.npy", targetnames)
     plot_confusion_matrix(model1, X_test, test_y, normalize='true', xticks_rotation = 'vertical', display_labels = targetnames, ax=ax) 
-    plt.savefig(f"models/opt_cnn_model-{n_samples}-confusion.png")
+    plt.savefig(f"experiments/models/opt_cnn_model-{n_samples}-confusion.png")
 
     #analyse misclassifications
     misclassifications_per_scenario = {}
@@ -113,5 +146,15 @@ for n_samples in [50,100,200,500]:
     json_object = json.dumps(misclassifications_per_scenario, indent=4)
     
     # Writing to sample.json
-    with open(f"misclassifications_per_scenario_{n_samples}.json", "w") as outfile:
+    with open(f"experiments/misclassifications_per_scenario_{n_samples}.json", "w") as outfile:
         outfile.write(json_object)
+
+    #compare with classifical method
+    #do 30 independent runs (5 dimensions)
+    
+
+    model2 = biasmodel(model)
+    test_y = np.argmax(y_test, axis=1)
+    fig, ax = plt.subplots(figsize=(14, 14))
+    plot_confusion_matrix(model2, X_test, test_y, normalize='true', xticks_rotation = 'vertical', display_labels = targetnames, ax=ax) 
+    plt.savefig(f"experiments/models/bias_model-{n_samples}-confusion.png")

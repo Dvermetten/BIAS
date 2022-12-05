@@ -16,7 +16,6 @@ import matplotlib.pyplot as plt
 import seaborn as sbs
 import os
 
-pwr = importr('PoweR')
 
 def install_r_packages():
     """Install the required R packages.
@@ -25,6 +24,7 @@ def install_r_packages():
     utils.chooseCRANmirror(ind=1) # select the first mirror in the list
     packnames = ('PoweR', 'AutoSEARCH', 'nortest', 'data.table', 'goftest', 'ddst')
     utils.install_packages(StrVector(packnames))
+    
 
 def f0(x):
     """f0 random function, to be used a objective function to test optimization algorithms.
@@ -46,6 +46,7 @@ class BIAS():
             install_r (bool): if set to True, try to install the required R packages automatically.
         """
         self.p_value_columns = ['1-spacing', '2-spacing', '3-spacing','ad', 'ad_transform', 'shapiro', 'jb', 'ddst']
+        self.pwr = importr('PoweR')
 
 
     def _load_ref_vals(self, n_samples, alpha = 0.01, across = False):
@@ -100,7 +101,7 @@ class BIAS():
             'Marhuenda',
             'Zhang1',
             'Zhang2']
-        test_types_new = [pwr.create_alter(robjects.FloatVector(np.arange(63,83)))[i][0] for i in range(20)]
+        test_types_new = [self.pwr.create_alter(robjects.FloatVector(np.arange(63,83)))[i][0] for i in range(20)]
         return {k:v for k,v in zip(testnames, test_types_new)}
 
     def transform_to_reject_dt_corr(self, dt, alpha, n_samples, correction_method='fdr_bh'):
@@ -290,7 +291,7 @@ class BIAS():
             predicted bias type (string), optional probabilities (array)
         """
         #load model
-        n_samples = data.shape[1]
+        n_samples = data.shape[0]
         if not n_samples in [50,100]:
             raise ValueError("Sample size is not supported")
         model = tf.keras.models.load_model(f"models/opt_cnn_model-{n_samples}.h5")
