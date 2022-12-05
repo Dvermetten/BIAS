@@ -2,3 +2,5 @@ structured_data_classifier
 BIAS/__pycache__
 env
 BIAS/models
+*.pkl
+__pycache__
