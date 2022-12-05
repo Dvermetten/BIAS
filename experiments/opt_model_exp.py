@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import autokeras as ak
 #load data
-from BIAS.SB_Test_runner import get_scens_per_dim, get_simulated_data
+from SB_Test_runner import get_scens_per_dim, get_simulated_data
 
 rep = 20000
 n_samples = 100

@@ -51,7 +51,7 @@ class biasmodel(MLPClassifier):
                 class_pred = "disc"
             else:
                 print(pred)
-            y.append(targetnames.index(class_pred))
+            y.append(np.where(targetnames == class_pred)[0])
             
         return np.array(y)
 
@@ -153,7 +153,7 @@ for n_samples in [50,100,200,500]:
     #do 30 independent runs (5 dimensions)
     
 
-    model2 = biasmodel(model)
+    model2 = biasmodel(model, targetnames)
     test_y = np.argmax(y_test, axis=1)
     fig, ax = plt.subplots(figsize=(14, 14))
     plot_confusion_matrix(model2, X_test, test_y, normalize='true', xticks_rotation = 'vertical', display_labels = targetnames, ax=ax) 
