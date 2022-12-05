@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import autokeras as ak
 #load data
-from BIAS.SB_Test_runner import get_scens_per_dim, get_simulated_data
+from SB_Test_runner import get_scens_per_dim, get_simulated_data
 
 class newmodel(MLPClassifier):
     def __init__(self, model):
@@ -78,7 +78,7 @@ for n_samples in [50,100,200,500]:
     #load model
     from sklearn.metrics import f1_score
 
-    model = tf.keras.models.load_model(f"opt_cnn_model-{n_samples}.h5")
+    model = tf.keras.models.load_model(f"models/opt_cnn_model-{n_samples}.h5")
     model.summary()
     print(
         "Accuracy: {accuracy}".format(
@@ -88,7 +88,7 @@ for n_samples in [50,100,200,500]:
             f1 = f1_score(np.argmax(y_test, axis=1), np.argmax(model.predict(X_test), axis=1), average='macro')
         )
     )
-    tf.keras.utils.plot_model(model, to_file=f"opt_cnn_model-{n_samples}.png")
+    tf.keras.utils.plot_model(model, to_file=f"models/opt_cnn_model-{n_samples}.png")
 
     model1 = newmodel(model)
     hat_y_real = model.predict(X_test)
@@ -97,8 +97,9 @@ for n_samples in [50,100,200,500]:
     test_y = np.argmax(y_test, axis=1)
     test_real_y = np.argmax(y_test_real, axis=1)
     fig, ax = plt.subplots(figsize=(14, 14))
+    np.save("targetnames.npy", targetnames)
     plot_confusion_matrix(model1, X_test, test_y, normalize='true', xticks_rotation = 'vertical', display_labels = targetnames, ax=ax) 
-    plt.savefig(f"opt_cnn_model-{n_samples}-confusion.png")
+    plt.savefig(f"models/opt_cnn_model-{n_samples}-confusion.png")
 
     #analyse misclassifications
     misclassifications_per_scenario = {}

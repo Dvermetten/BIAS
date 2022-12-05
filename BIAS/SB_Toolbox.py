@@ -1,6 +1,7 @@
 from .SB_Test_runner import get_test_dict
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 import pickle
 import requests
 from io import BytesIO
@@ -273,6 +274,32 @@ class BIAS():
                 f"The rejections seems to be most similar to the {res_scen} scenario ({np.max(prob_scens):.2f} probability).")
         return {'Class' : res_class[0], 'Class Probabilities' : prob_classes, 
                 'Scenario' : res_scen[0], 'Scenario Probabilities' : prob_scens}
+
+    def predict_deep(self, data, include_proba=True):
+        """Predict the BIAS using our neural network.
+
+        Args:
+            data (dataframe): The matrix containing the final position values on F0. Note that these should be scaled 
+                in [0,1], and in the shape (n_samples, dimension), where n_samples is in [50, 100] (later to add 30,600)
+            include_proba (boolean, optional): To include the probabilities of each class or only the final label.
+        
+        Raises:
+            ValueError: Unsupported sample size.
+
+        Returns:
+            predicted bias type (string), optional probabilities (array)
+        """
+        #load model
+        n_samples = data.shape[1]
+        if not n_samples in [50,100]:
+            raise ValueError("Sample size is not supported")
+        model = tf.keras.models.load_model(f"models/opt_cnn_model-{n_samples}.h5")
+        targetnames = np.load("models/targetnames.npy")
+        preds = model.predict([data])
+        y = np.argmax(preds, axis=1)
+        if include_proba:
+            return targetnames[y], preds
+        return targetnames[y]
         
     def predict(self, data, corr_method = 'fdr_bh', alpha=0.01, show_figure=False, filename = None, print_type = True):
         """The main function used to detect Structural Bias.
