@@ -1,6 +1,7 @@
-from .SB_Toolbox import run_SB_test, f0
+from .SB_Toolbox import BIAS, f0, install_r_packages
 
 __all__ = (
-    "run_SB_test",
-    "f0"
+    "BIAS",
+    "f0",
+    "install_r_packages"
 )
