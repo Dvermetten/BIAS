@@ -3,7 +3,7 @@ import pandas as pd
 from tensorflow.keras.utils import to_categorical
 import matplotlib.pyplot as plt
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 from sklearn.metrics import plot_confusion_matrix
 from sklearn.neural_network import MLPClassifier
@@ -58,9 +58,22 @@ for n_samples in [30,50,100,600]:
 
     X_train, X_test, y_train, y_test = train_test_split(X, cat_y, test_size=0.2, random_state=42, stratify=int_y)
 
-    clf = ak.ImageClassifier(
-        max_trials=100,
-        overwrite=True,
+    #clf = ak.ImageClassifier(
+    #    max_trials=100,
+    #    overwrite=True,
+    #)
+    input_node = ak.ImageInput()
+    output_node = ak.ImageBlock(
+        # Only search ResNet architectures.
+        #block_type="resnet",
+        # Normalize the dataset.
+        normalize=True,
+        # Do not do data augmentation.
+        augment=False,
+    )(input_node)
+    output_node = ak.ClassificationHead()(output_node)
+    clf = ak.AutoModel(
+        inputs=input_node, outputs=output_node, overwrite=True, max_trials=100
     )
     X_train = np.expand_dims(X_train, axis=2)
     X_test = np.expand_dims(X_test, axis=2)
@@ -84,8 +97,8 @@ for n_samples in [30,50,100,600]:
 
     model = clf.export_model()
     model.summary()
-    model.save(f"opt_cnn_model-{n_samples}.tf")
-    tf.keras.utils.plot_model(model, to_file=f"opt_cnn_model-{n_samples}.png")
+    model.save(f"opt_cnn_model-{n_samples}-v2.h5")
+    tf.keras.utils.plot_model(model, to_file=f"opt_cnn_model-{n_samples}-v2.png")
 
     class newmodel(MLPClassifier):
         def __init__(self, model):
@@ -97,4 +110,4 @@ for n_samples in [30,50,100,600]:
     model1 = newmodel(model)
     fig, ax = plt.subplots(figsize=(14, 14))
     plot_confusion_matrix(model1, X_test, np.argmax(y_test, axis=1), normalize='true', xticks_rotation = 'vertical', display_labels = targetnames, ax=ax) 
-    plt.savefig(f"opt_cnn_model-{n_samples}-confusion.png")
+    plt.savefig(f"opt_cnn_model-{n_samples}-confusion-v2.png")
