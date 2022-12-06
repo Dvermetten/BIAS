@@ -35,7 +35,7 @@ class biasmodel(MLPClassifier):
 
     def predict(self, X):
         y = []
-        for x in tqdm(X_test):
+        for x in tqdm(X):
             rejec, pred = self.test.predict(x, show_figure=False, print_type=False)
             
             if (pred == "none"):
@@ -157,6 +157,7 @@ for n_samples in [30,50,100,600]:
 
     model2 = biasmodel(model, targetnames)
     test_y = np.argmax(y_test, axis=1)
+    #print(f1_score(np.argmax(y_test, axis=1), np.argmax(model2.predict(X_test), axis=1), average='macro')
     fig, ax = plt.subplots(figsize=(14, 14))
     plot_confusion_matrix(model2, X_test, test_y, normalize='true', xticks_rotation = 'vertical', display_labels = targetnames, ax=ax) 
     plt.savefig(f"experiments/models/bias_model-{n_samples}-confusion.png")
