@@ -9,8 +9,6 @@ from io import BytesIO
 from zipfile import ZipFile
 from rpy2.robjects.packages import importr
 import rpy2.robjects as robjects
-import rpy2.robjects.packages as rpackages
-from rpy2.robjects.vectors import StrVector
 from statsmodels.stats.multitest import multipletests
 from scipy.stats import percentileofscore
 import matplotlib.pyplot as plt
@@ -22,10 +20,8 @@ import os
 def install_r_packages():
     """Install the required R packages.
     """
-    utils = rpackages.importr('utils')
-    utils.chooseCRANmirror(ind=1) # select the first mirror in the list
-    packnames = ('PoweR', 'AutoSEARCH', 'nortest', 'data.table', 'goftest', 'ddst')
-    utils.install_packages(StrVector(packnames))
+    dirname = os.path.dirname(__file__)
+    robjects.r.source(f"{dirname}/install.r", encoding="utf-8")
     
 
 def f0(x):
@@ -52,7 +48,7 @@ def getXAIBackground(n_samples=30, rep=20):
     for scene in scenes:
         label = scene[0]
         kwargs = scene[1]
-        data = get_simulated_data(label, rep=rep, n_samples = 50, kwargs=kwargs)
+        data = get_simulated_data(label, rep=rep, n_samples=n_samples, kwargs=kwargs)
         for r in range(rep):
             X.append(np.sort(data[:,r]))
     X = np.expand_dims(X, axis=2)
