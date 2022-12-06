@@ -114,7 +114,7 @@ for n_samples in [30,50,100,600]:
 
     model = tf.keras.models.load_model(f"BIAS/models/opt_cnn_model-{n_samples}.h5")
     model.save(f"BIAS/models/opt_cnn_model-{n_samples}.tf")
-    model.summary()
+    #model.summary()
     print(
         "Accuracy: {accuracy}".format(
             accuracy = model.evaluate(x=X_test, y=y_test)
@@ -143,7 +143,7 @@ for n_samples in [30,50,100,600]:
             if (targetnames_real[test_real_y[i]] not in misclassifications_per_scenario.keys()):
                 misclassifications_per_scenario[targetnames_real[test_real_y[i]]] = 1
             misclassifications_per_scenario[targetnames_real[test_real_y[i]]] += 1
-    print(misclassifications_per_scenario)
+    #print(misclassifications_per_scenario)
     # Serializing json
     json_object = json.dumps(misclassifications_per_scenario, indent=4)
     
