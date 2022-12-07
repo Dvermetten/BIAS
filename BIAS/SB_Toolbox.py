@@ -344,7 +344,7 @@ class BIAS():
 
         Args:
             data (dataframe): The matrix containing the final position values on F0. Note that these should be scaled 
-                in [0,1], and in the shape (n_samples, dimension), where n_samples is in [50, 100] (later to add 30,600)
+                in [0,1], and in the shape (n_samples, dimension), where n_samples is in [30, 50, 100] (later to add 600)
             include_proba (boolean, optional): To include the probabilities of each class or only the final label.
         
         Raises:
@@ -355,7 +355,7 @@ class BIAS():
         """
         #load model
         n_samples = data.shape[0]
-        if not n_samples in [50,100]:
+        if not n_samples in [30,50,100]:
             raise ValueError("Sample size is not supported")
         if (self.deepmodel == None):
             dirname = os.path.dirname(__file__)
