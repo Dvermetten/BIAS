@@ -59,7 +59,7 @@ class biasmodel(MLPClassifier):
 #settings for this experiment
 rep = 20000
 
-for n_samples in [30,50,100,600]:
+for n_samples in [30]:#,50,100,600
     #load data
     scenes = get_scens_per_dim()
     per_label = {"unif":0, "centre":0, "bounds":0, "gaps/clusters":0, "disc":0}
