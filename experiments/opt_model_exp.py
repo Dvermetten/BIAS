@@ -3,7 +3,7 @@ import pandas as pd
 from tensorflow.keras.utils import to_categorical
 import matplotlib.pyplot as plt
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 from sklearn.metrics import plot_confusion_matrix
 from sklearn.neural_network import MLPClassifier
@@ -13,10 +13,10 @@ import autokeras as ak
 #load data
 from SB_Test_runner import get_scens_per_dim, get_simulated_data
 
-rep = 20000
+rep = 10000
 n_samples = 100
 
-for n_samples in [30,50,100,600]:
+for n_samples in [600]:
 
     scenes = get_scens_per_dim()
     per_label = {"unif":0, "centre":0, "bounds":0, "gaps/clusters":0, "disc":0}
@@ -58,23 +58,23 @@ for n_samples in [30,50,100,600]:
 
     X_train, X_test, y_train, y_test = train_test_split(X, cat_y, test_size=0.2, random_state=42, stratify=int_y)
 
-    clf = ak.ImageClassifier(
-        max_trials=100,
-        overwrite=True,
-    )
-    #input_node = ak.ImageInput()
-    #output_node = ak.ImageBlock(
-        # Only search ResNet architectures.
-    #    block_type="vanilla",
-        # Normalize the dataset.
-    #    normalize=False,
-        # Do not do data augmentation.
-    #    augment=False,
-    #)(input_node)
-    #output_node = ak.ClassificationHead()(output_node)
-    #clf = ak.AutoModel(
-    #    inputs=input_node, outputs=output_node, overwrite=True, max_trials=100
+    #clf = ak.ImageClassifier(
+    #    max_trials=100,
+    #    overwrite=True,
     #)
+    input_node = ak.ImageInput()
+    output_node = ak.ImageBlock(
+        # Only search ResNet architectures.
+        block_type="vanilla",
+        # Normalize the dataset.
+        normalize=False,
+        # Do not do data augmentation.
+        augment=False,
+    )(input_node)
+    output_node = ak.ClassificationHead()(output_node)
+    clf = ak.AutoModel(
+        inputs=input_node, outputs=output_node, overwrite=True, max_trials=50
+    )
     X_train = np.expand_dims(X_train, axis=2)
     X_test = np.expand_dims(X_test, axis=2)
     # Search for the best model with EarlyStopping.
