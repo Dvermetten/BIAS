@@ -1,1 +1,0 @@
-# Folder for misclassification images (see analyse_model.ipynb)
