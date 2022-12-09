@@ -18,7 +18,9 @@ for i in np.arange(50):
 samples = np.array(samples)
 
 test = BIAS()
+# use the classical stastistical approach to detect BIAS
 print(test.predict(samples, show_figure=True))
 
+#use the trained deep learning model to predict and explain BIAS
 y, preds = test.predict_deep(samples)
 test.explain(samples, preds, filename="explanation.png")
