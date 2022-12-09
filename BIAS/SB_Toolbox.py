@@ -1,29 +1,28 @@
-from .SB_Test_runner import get_test_dict
+from .SB_Test_runner import get_test_dict, get_scens_per_dim, get_simulated_data
 import numpy as np
 import pandas as pd
+import tensorflow as tf
+import autokeras as ak
 import pickle
 import requests
 from io import BytesIO
 from zipfile import ZipFile
 from rpy2.robjects.packages import importr
 import rpy2.robjects as robjects
-import rpy2.robjects.packages as rpackages
-from rpy2.robjects.vectors import StrVector
 from statsmodels.stats.multitest import multipletests
 from scipy.stats import percentileofscore
 import matplotlib.pyplot as plt
 import seaborn as sbs
+import shap
 import os
 
-pwr = importr('PoweR')
 
 def install_r_packages():
     """Install the required R packages.
     """
-    utils = rpackages.importr('utils')
-    utils.chooseCRANmirror(ind=1) # select the first mirror in the list
-    packnames = ('PoweR', 'AutoSEARCH', 'nortest', 'data.table', 'goftest', 'ddst')
-    utils.install_packages(StrVector(packnames))
+    dirname = os.path.dirname(__file__)
+    robjects.r.source(f"{dirname}/install.r", encoding="utf-8")
+    
 
 def f0(x):
     """f0 random function, to be used a objective function to test optimization algorithms.
@@ -34,7 +33,27 @@ def f0(x):
     Returns:
         float: A uniform random number
     """
-    return np.random.uniform()        
+    return np.random.uniform()       
+
+
+def getXAIBackground(n_samples=30, rep=20):
+    """Get background training samples to approximate Shapley values for the deeplearning approach.
+
+    Args:
+        n_samples (int, optional): number of samples, should be in [30,50,100,600]. Defaults to 30.
+        rep (int, optional): number of repetitions per scenario. Defaults to 20.
+    """
+    scenes = get_scens_per_dim()
+    X = []
+    for scene in scenes:
+        label = scene[0]
+        kwargs = scene[1]
+        data = get_simulated_data(label, rep=rep, n_samples=n_samples, kwargs=kwargs)
+        for r in range(rep):
+            X.append(np.sort(data[:,r]))
+    X = np.expand_dims(X, axis=2)
+    return np.array(X)
+
 class BIAS():
     
     def __init__(self):
@@ -45,6 +64,8 @@ class BIAS():
             install_r (bool): if set to True, try to install the required R packages automatically.
         """
         self.p_value_columns = ['1-spacing', '2-spacing', '3-spacing','ad', 'ad_transform', 'shapiro', 'jb', 'ddst']
+        self.pwr = importr('PoweR')
+        self.deepmodel = None
 
 
     def _load_ref_vals(self, n_samples, alpha = 0.01, across = False):
@@ -99,7 +120,7 @@ class BIAS():
             'Marhuenda',
             'Zhang1',
             'Zhang2']
-        test_types_new = [pwr.create_alter(robjects.FloatVector(np.arange(63,83)))[i][0] for i in range(20)]
+        test_types_new = [self.pwr.create_alter(robjects.FloatVector(np.arange(63,83)))[i][0] for i in range(20)]
         return {k:v for k,v in zip(testnames, test_types_new)}
 
     def transform_to_reject_dt_corr(self, dt, alpha, n_samples, correction_method='fdr_bh'):
@@ -273,6 +294,88 @@ class BIAS():
                 f"The rejections seems to be most similar to the {res_scen} scenario ({np.max(prob_scens):.2f} probability).")
         return {'Class' : res_class[0], 'Class Probabilities' : prob_classes, 
                 'Scenario' : res_scen[0], 'Scenario Probabilities' : prob_scens}
+
+    def explain(self, data, preds, filename=None):
+        """Explain the predictions of the deeplearning model.
+        You need to call predict_deep first.
+
+        Args:
+            data (dataframe): The matrix containing the final position values on F0. Note that these should be scaled 
+                in [0,1], and in the shape (n_samples, dimension), where n_samples is in [30, 50, 100, 600]
+            preds (array): Predictions of bias type for each dimension.
+            filename (string): Where to save the figure, if None it will call plt.show() instead.
+        """
+        #calculate the shapley values per dim
+
+        fig, axes = plt.subplots(nrows=data.shape[1], ncols=2, figsize=(12, data.shape[1] * 2), gridspec_kw={'width_ratios': [1, 3]})
+        for d in range(data.shape[1]):
+            x = [np.sort(data[:,d])]
+            x = np.expand_dims(x, axis=2)
+            shap_val = self.explainer.shap_values(x)
+            print(preds[d])
+            y = np.argmax(preds[d], axis=1) #prediction of the dimension
+            shap_vals_pred = shap_val[y[0]][0]
+
+            cmap = sbs.color_palette('coolwarm', as_cmap=True)
+            norm = plt.Normalize(vmin=-1*np.max(np.abs(shap_vals_pred)), vmax=np.max(np.abs(shap_vals_pred)))  # 0 and 1 are the defaults, but you can adapt these to fit other uses
+            df = pd.DataFrame({"x": np.sort(data[:,d]).flatten(), "shap": shap_vals_pred.flatten()})
+            palette = {h: cmap(norm(h)) for h in df['shap']}
+            axes[d,0].bar(self.targetnames, preds[d][0])
+            axes[d,0].tick_params(axis='x', labelrotation = 30)
+            axes[d,0].set_title("Prediction probabilities")
+            axes[d,0].set_ylim([0,1])
+
+            axes[d,1].set_title(f"Predicted: {self.targetnames[y]}")
+            sbs.swarmplot(data=df, x="x", hue="shap", palette=palette, ax=axes[d,1], size=4, legend=False)
+            axes[d,1].set_xlabel("")
+            axes[d,1].set_xlim([0,1])
+        
+        #sbs.move_legend(ax, "upper left", bbox_to_anchor=(1, 1))
+        plt.tight_layout()
+        if (filename == None):
+            plt.show()
+        else:
+            plt.savefig(filename)
+        plt.close()
+
+    
+    def predict_deep(self, data, include_proba=True):
+        """Predict the BIAS using our neural network.
+
+        Args:
+            data (dataframe): The matrix containing the final position values on F0. Note that these should be scaled 
+                in [0,1], and in the shape (n_samples, dimension), where n_samples is in [30, 50, 100] (later to add 600)
+            include_proba (boolean, optional): To include the probabilities of each class or only the final label.
+        
+        Raises:
+            ValueError: Unsupported sample size.
+
+        Returns:
+            predicted bias type (string), optional probabilities (array)
+        """
+        #load model
+        n_samples = data.shape[0]
+        if not n_samples in [30,50,100]:
+            raise ValueError("Sample size is not supported")
+        if (self.deepmodel == None):
+            dirname = os.path.dirname(__file__)
+            #download RF models if needed from 
+            self.deepmodel = tf.keras.models.load_model(f"{dirname}/models/opt_cnn_model-{n_samples}.h5")
+            self.targetnames = np.load(f"{dirname}/models/targetnames.npy", allow_pickle=True)
+            #loading explainable background samples and loading the explainer
+            self.xai_background = getXAIBackground(data.shape[0])
+            self.explainer = shap.DeepExplainer(self.deepmodel, self.xai_background)
+        preds = []
+        for d in range(data.shape[1]):
+            #perform per dimension test
+            x = np.sort(data[:,d])
+            x = np.expand_dims([x], axis=2)
+            preds.append(self.deepmodel.predict(x))
+        pred_mean = np.mean(preds, axis=1)
+        y = np.argmax(pred_mean, axis=1)
+        if include_proba:
+            return self.targetnames[y], preds
+        return self.targetnames[y]
         
     def predict(self, data, corr_method = 'fdr_bh', alpha=0.01, show_figure=False, filename = None, print_type = True):
         """The main function used to detect Structural Bias.

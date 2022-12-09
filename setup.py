@@ -21,6 +21,8 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'numpy',
+        'tensorflow',
+        'shap',
         'rpy2',
         'scipy',
         'pandas',

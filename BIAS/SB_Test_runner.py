@@ -1,8 +1,4 @@
-import rpy2
-import rpy2.robjects as robjects
-from rpy2.robjects.packages import importr
-from rpy2.robjects import numpy2ri
-from rpy2.robjects import pandas2ri
+
 
 import numpy as np
 import pandas as pd
@@ -15,26 +11,12 @@ from sklearn.metrics import adjusted_mutual_info_score, pairwise_distances_argmi
 
 import sys
 
-importr('data.table')
-importr('goftest')
-ddst = importr('ddst')
-pwr = importr('PoweR')
+#importr('data.table')
+#importr('goftest')
+#ddst = importr('ddst')
+#pwr = importr('PoweR')
 
-robjects.r('''
-R_test_ad <- function(x, max_=1) {
-    return(ad.test(x, "punif", max=max_, min=0)[[2]])
-}
 
-R_test_norm <- function(x, test='Shapiro') {
-    qnorm_temp <- qnorm(x)
-    qnorm_temp[is.infinite(qnorm_temp)] <- 4*sign(qnorm_temp[is.infinite(qnorm_temp)])
-    if (test == 'Shapiro') {
-        return(shapiro.test(qnorm_temp)[[2]])
-    } else {
-        return(AutoSEARCH::jb.test(qnorm_temp)$p.value)
-    }
-}
-''')
 
 def get_mi(X, type_='med'):
     mutuals = []
@@ -446,19 +428,19 @@ def run_scenario(scen_list, foldername = "", rep=1500, alpha=0.01, n_samples = 1
 
 def get_scens_per_dim():
     scens = [['unif', {}]]
-    for temp in [0.01, 0.025, 0.05, 0.1, 0.2]:
+    for temp in [0.025, 0.05, 0.1, 0.2]:
         scens.append(['trunc_unif', {'min' : temp/2, 'max' : 1-temp/2}])
+    for temp in [0.025, 0.05, 0.1, 0.2]:
         scens.append(['trunc_unif', {'min' : temp, 'max' : 1}])
-    for max_ in [25, 50, 100, 150, 200, 250, 500, 1000]:
+    for max_ in [25, 50, 100, 150, 200, 250]:
         scens.append(['spikes', {'max' : max_}])
+    for max_ in [25, 50, 100, 150, 200, 250]:
         for sigma in [0.005,0.01, 0.02, 0.03, 0.04, 0.05]:
             scens.append(['shifted_spikes', {'max' : max_, 'sigma' : sigma}])
-    for sigma in [0.1, 0.2, 0.3, 0.4, 0.5]:
-        for mu in [0.5, 0.6, 0.7]:
-            scens.append(['norm', {'sigma' : sigma, 'mu' : mu}])
-            scens.append(['inv_norm', {'sigma' : sigma, 'mu' : mu}])
-            scens.append(['cauchy', {'sigma' : sigma, 'mu' : mu}])
-            scens.append(['inv_cauchy', {'sigma' : sigma, 'mu' : mu}])
+    for s in ['norm', 'inv_norm', 'cauchy', 'inv_cauchy']:
+        for sigma in [0.1, 0.2, 0.3, 0.4]:
+            for mu in [0.5, 0.6, 0.7]:
+                scens.append([s, {'sigma' : sigma, 'mu' : mu}])
     for n_centers in [1,2,3,4,5]:
         for gap_rad in [0.01, 0.02, 0.03, 0.04, 0.05]:
             scens.append(['gaps', {'n_centers' : n_centers, 'sigma' : gap_rad}])
@@ -468,6 +450,9 @@ def get_scens_per_dim():
     for n_unif in [0.1, 0.25, 0.5]:
         for sigma in [0.01, 0.02, 0.05, 0.1]:
             scens.append(['part_unif', {'frac_unif' : n_unif, 'sigma' : sigma}])
+    for f_0 in [0.1, 0.35, 0.45, 0.5]:
+        for f_between in [0.5, 0.25, 0.1, 0.05, 0.025, 0.01]:
+            scens.append(['bound_thing', {'frac_between' : f_between, 'frac_0' : f_0}])
     return scens
 
 def get_scens_across_dim():
