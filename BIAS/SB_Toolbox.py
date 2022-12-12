@@ -453,7 +453,7 @@ class BIAS:
             x = np.sort(data[:, d])
             x = np.expand_dims([x], axis=2)
             preds.append(self.deepmodel.predict(x))
-        pred_mean = np.mean(preds, axis=1)
+        pred_mean = np.mean(preds, axis=0)
         y = np.argmax(pred_mean, axis=1)
         if include_proba:
             return self.targetnames[y], preds
