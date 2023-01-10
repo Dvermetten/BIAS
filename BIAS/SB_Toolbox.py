@@ -446,7 +446,7 @@ class BIAS:
         if np.mean(decisions) <= 0.1:
             y = 'unif'
         else:
-            pred_mean = np.mean(preds, axis=0)
+            pred_mean = np.mean(np.array(preds), axis=0)
             y = self.targetnames[np.argmax(pred_mean.flatten()[1:])+1]
         
         if include_proba:
