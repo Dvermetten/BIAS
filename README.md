@@ -1,5 +1,6 @@
-# BIAS: Bias In Algorithms, Structural
+# Deep-BIAS: Bias In Algorithms, Structural
 ## A toolbox for detecting structural bias in continuous optimization heuristics.
+## With a deep-learning extension to better evaluate the type of bias and gain insights using explainable AI
 
 ## Setup
 
@@ -46,6 +47,9 @@ samples = np.array(samples)
 
 test = BIAS()
 print(test.predict(samples, show_figure=True))
+
+y, preds = test.predict_deep(samples)
+test.explain(samples, preds, filename="explanation.png")
 ```
 
 ## Additional files
