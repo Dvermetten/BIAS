@@ -75,3 +75,31 @@ test.explain(samples, preds, filename="explanation.png")
 Note: The code for generating the RF used to predict the type of bias is included, but the full RF is not. These can be found on zenodo: https://doi.org/10.6084/m9.figshare.16546041.
 The RF models will be downloaded automatically the first time the predict function requires them.
 
+### Citation
+
+If you use the BIAS toolbox in a scientific publication, we would appreciate using the following citations:
+
+```
+@ARTICLE{9828803,
+  author={Vermetten, Diederick and van Stein, Bas and Caraffini, Fabio and Minku, Leandro L. and Kononova, Anna V.},
+  journal={IEEE Transactions on Evolutionary Computation}, 
+  title={BIAS: A Toolbox for Benchmarking Structural Bias in the Continuous Domain}, 
+  year={2022},
+  volume={26},
+  number={6},
+  pages={1380-1393},
+  doi={10.1109/TEVC.2022.3189848}
+}
+
+@software{niki_van_stein_2023_7803623,
+  author       = {Niki van Stein and
+                  Diederick Vermetten},
+  title        = {Basvanstein/BIAS: v1.1 Deep-BIAS Toolbox},
+  month        = apr,
+  year         = 2023,
+  publisher    = {Zenodo},
+  version      = {v1.1},
+  doi          = {10.5281/zenodo.7803623},
+  url          = {https://doi.org/10.5281/zenodo.7803623}
+}
+```
