@@ -3,7 +3,6 @@ import pickle
 from io import BytesIO
 from zipfile import ZipFile
 
-import autokeras as ak
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
