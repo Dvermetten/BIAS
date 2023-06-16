@@ -4,7 +4,7 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-__version__ = "auto"
+__version__ = "1.2.3"
 gh_ref = os.environ.get("GITHUB_REF")
 if gh_ref:
     *_, tag = gh_ref.split("/")
@@ -13,13 +13,16 @@ if gh_ref:
 setuptools.setup(
     name='struct-bias',
     version=__version__,
-    author="Diederick Vermetten",
+    author="Diederick Vermetten, Niki van Stein",
     author_email="d.l.vermetten@liacs.leidenuniv.nl",
     description="BIAS toolbox: Structural bias detection for continuous optimization algorithms",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
-    include_package_data=True,
+    package_data={
+        'BIAS': ['install.r'],
+    },
+    python_requires='>=3.6',
     install_requires=[
         'numpy',
         'tensorflow',
@@ -30,7 +33,8 @@ setuptools.setup(
         'sklearn',
         'matplotlib',
         'seaborn',
-        'statsmodels'
+        'statsmodels',
+        'regex'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
