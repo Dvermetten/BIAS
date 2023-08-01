@@ -14,7 +14,7 @@ import tensorflow as tf
 from rpy2.robjects.packages import importr
 from scipy.stats import percentileofscore
 from statsmodels.stats.multitest import multipletests
-
+import autokeras as ak
 from .SB_Test_runner import get_scens_per_dim, get_simulated_data, get_test_dict
 
 
@@ -342,7 +342,7 @@ class BIAS:
             "Scenario Probabilities": prob_scens,
         }
 
-    def explain(self, data, preds, filename=None):
+    def explain(self, data, preds, filename=None, verbose=False):
         """Explain the predictions of the deeplearning model.
         You need to call predict_deep first.
 
@@ -351,6 +351,7 @@ class BIAS:
                 in [0,1], and in the shape (n_samples, dimension), where n_samples is in [30, 50, 100, 600]
             preds (array): Predictions of bias type for each dimension.
             filename (string): Where to save the figure, if None it will call plt.show() instead.
+            verbose (bool): Print additional output.
         """
         # calculate the shapley values per dim
 
@@ -364,7 +365,8 @@ class BIAS:
             x = [np.sort(data[:, d])]
             x = np.expand_dims(x, axis=2)
             shap_val = self.explainer.shap_values(x)
-            print(preds[d])
+            if self.verbose:
+                print(preds[d])
             y = np.argmax(preds[d], axis=1)  # prediction of the dimension
             shap_vals_pred = shap_val[y[0]][0]
 
@@ -425,7 +427,7 @@ class BIAS:
             dirname = os.path.dirname(__file__)
             # download RF models if needed from
             self.deepmodel = tf.keras.models.load_model(
-                f"{dirname}/models/opt_cnn_model-{n_samples}"
+                f"{dirname}/models/opt_cnn_model-{n_samples}.keras"
             )
             self.targetnames = np.load(
                 f"{dirname}/models/targetnames.npy", allow_pickle=True

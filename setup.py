@@ -4,7 +4,7 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-__version__ = "1.2.4"
+__version__ = "1.2.8"
 gh_ref = os.environ.get("GITHUB_REF")
 if gh_ref:
     *_, tag = gh_ref.split("/")
@@ -20,7 +20,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
     package_data={
-        'BIAS': ['install.r', 'models/**/*'],
+        'BIAS': ['install.r', 'models/*'],
     },
     python_requires='>=3.6',
     install_requires=[
@@ -34,7 +34,8 @@ setuptools.setup(
         'matplotlib',
         'seaborn',
         'statsmodels',
-        'regex'
+        'regex',
+        'autokeras'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
