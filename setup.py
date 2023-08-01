@@ -20,7 +20,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
     package_data={
-        'BIAS': ['install.r'],
+        'BIAS': ['install.r', 'data/**/*'],
     },
     python_requires='>=3.6',
     install_requires=[

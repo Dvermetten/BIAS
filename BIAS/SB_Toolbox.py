@@ -425,7 +425,7 @@ class BIAS:
             dirname = os.path.dirname(__file__)
             # download RF models if needed from
             self.deepmodel = tf.keras.models.load_model(
-                f"{dirname}/models/opt_cnn_model-{n_samples}.h5"
+                f"{dirname}/models/opt_cnn_model-{n_samples}"
             )
             self.targetnames = np.load(
                 f"{dirname}/models/targetnames.npy", allow_pickle=True
