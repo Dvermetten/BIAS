@@ -365,7 +365,7 @@ class BIAS:
             x = [np.sort(data[:, d])]
             x = np.expand_dims(x, axis=2)
             shap_val = self.explainer.shap_values(x)
-            if self.verbose:
+            if verbose:
                 print(preds[d])
             y = np.argmax(preds[d], axis=1)  # prediction of the dimension
             shap_vals_pred = shap_val[y[0]][0]
@@ -440,7 +440,7 @@ class BIAS:
             # perform per dimension test
             x = np.sort(data[:, d])
             x = np.expand_dims([x], axis=2)
-            preds.append(self.deepmodel.predict(x))
+            preds.append(self.deepmodel.predict(x, verbose=0))
         
         decisions = np.argmax(np.array(preds).reshape(-1, 5), axis=1) > 0
         
