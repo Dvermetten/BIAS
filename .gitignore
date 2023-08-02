@@ -4,3 +4,6 @@ env
 BIAS/models/RF
 *.pkl
 __pycache__
+dist
+build
+*.egg-info
