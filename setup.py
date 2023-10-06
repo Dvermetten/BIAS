@@ -30,7 +30,7 @@ setuptools.setup(
         'rpy2',
         'scipy',
         'pandas',
-        'sklearn',
+        'scikit-learn',
         'matplotlib',
         'seaborn',
         'statsmodels',
