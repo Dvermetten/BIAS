@@ -15,7 +15,7 @@ unlink(pkgFile)
 url <- "https://cran.r-project.org/src/contrib/Archive/PoweR/PoweR_1.0.7.tar.gz"
 pkgFile <- "PoweR_1.0.7.tar.gz"
 download.file(url = url, destfile = pkgFile)
-install.packages(c("parallel", "Rcpp"))
+install.packages(c("Rcpp", "RcppArmadillo"))
 
 # Install package
 install.packages(pkgs=pkgFile, type="source", repos=NULL)
