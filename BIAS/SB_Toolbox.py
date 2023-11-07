@@ -18,6 +18,7 @@ import autokeras as ak
 
 from .SB_Test_runner import get_scens_per_dim, get_simulated_data, get_test_dict
 
+
 def f0(x):
     """f0 random function, to be used a objective function to test optimization algorithms.
 
@@ -83,9 +84,13 @@ class BIAS:
             list, list: two lists of reference values loaded from files.
         """
         dirname = os.path.dirname(__file__)
-         # download reference values if needed from figshare
-        if not os.path.isfile(f"{dirname}/data/Crit_vals_across/S{n_samples}_A{alpha}_with_refs.pkl"):
-            print("Downloading reference values for statistical tests, this takes a while..")
+        # download reference values if needed from figshare
+        if not os.path.isfile(
+            f"{dirname}/data/Crit_vals_across/S{n_samples}_A{alpha}_with_refs.pkl"
+        ):
+            print(
+                "Downloading reference values for statistical tests, this takes a while.."
+            )
             r = requests.get("https://figshare.com/ndownloader/files/30591411")
             zipfile = ZipFile(BytesIO(r.content))
             zipfile.extractall(f"{dirname}/data/")
@@ -145,8 +150,7 @@ class BIAS:
             for i in range(20)
         ]
         return {k: v for k, v in zip(testnames, test_types_new)}
-    
-    
+
     def transform_to_reject_dt_corr(
         self, dt, alpha, n_samples, correction_method="fdr_bh"
     ):
@@ -197,9 +201,13 @@ class BIAS:
                     for x in dt[k]
                 ]
             dt_p_vals_temp[k] = temp
-        res = np.array([multipletests(x, alpha=alpha, method=correction_method)[0] for x in np.array(dt_p_vals_temp)]).reshape(dt_p_vals_temp.shape)
-        return pd.DataFrame(res, columns= dt_p_vals_temp.columns)
-
+        res = np.array(
+            [
+                multipletests(x, alpha=alpha, method=correction_method)[0]
+                for x in np.array(dt_p_vals_temp)
+            ]
+        ).reshape(dt_p_vals_temp.shape)
+        return pd.DataFrame(res, columns=dt_p_vals_temp.columns)
 
     def _get_test_names_dict(self):
         """Helper function to ensure consistent naming for the used statistical tests
@@ -441,15 +449,15 @@ class BIAS:
             x = np.sort(data[:, d])
             x = np.expand_dims([x], axis=2)
             preds.append(self.deepmodel.predict(x, verbose=0))
-        
+
         decisions = np.argmax(np.array(preds).reshape(-1, 5), axis=1) > 0
-        
+
         if np.mean(decisions) <= 0.1:
-            y = 'unif'
+            y = "unif"
         else:
             pred_mean = np.mean(np.array(preds), axis=0)
-            y = self.targetnames[np.argmax(pred_mean.flatten()[1:])+1]
-        
+            y = self.targetnames[np.argmax(pred_mean.flatten()[1:]) + 1]
+
         if include_proba:
             return y, preds
         return y
