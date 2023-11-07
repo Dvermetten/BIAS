@@ -15,14 +15,8 @@ from rpy2.robjects.packages import importr
 from scipy.stats import percentileofscore
 from statsmodels.stats.multitest import multipletests
 import autokeras as ak
+
 from .SB_Test_runner import get_scens_per_dim, get_simulated_data, get_test_dict
-
-
-def install_r_packages():
-    """Install the required R packages."""
-    dirname = os.path.dirname(__file__)
-    robjects.r.source(f"{dirname}/install.r", encoding="utf-8")
-
 
 def f0(x):
     """f0 random function, to be used a objective function to test optimization algorithms.
@@ -89,6 +83,12 @@ class BIAS:
             list, list: two lists of reference values loaded from files.
         """
         dirname = os.path.dirname(__file__)
+         # download reference values if needed from figshare
+        if not os.path.isfile(f"{dirname}/data/Crit_vals_across/S{n_samples}_A{alpha}_with_refs.pkl"):
+            print("Downloading reference values for statistical tests, this takes a while..")
+            r = requests.get("https://figshare.com/ndownloader/files/30591411")
+            zipfile = ZipFile(BytesIO(r.content))
+            zipfile.extractall(f"{dirname}/data/")
         if across:
             with open(
                 f"{dirname}/data/Crit_vals_across/S{n_samples}_A{alpha}_with_refs.pkl",

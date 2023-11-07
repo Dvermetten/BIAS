@@ -4,7 +4,7 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 gh_ref = os.environ.get("GITHUB_REF")
 if gh_ref:
     *_, tag = gh_ref.split("/")
@@ -43,3 +43,8 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
 )
+
+import rpy2.robjects as robjects
+
+dirname = os.path.dirname(__file__)
+robjects.r.source(f"{dirname}/BIAS/install.r", encoding="utf-8")
