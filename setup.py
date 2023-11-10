@@ -7,11 +7,8 @@ with open("README.md", "r") as fh:
 __version__ = "1.3.2"
 gh_ref = os.environ.get("GITHUB_REF")
 if gh_ref:
-    print(gh_ref)
     *_, tag = gh_ref.split("/")
     __version__ = tag.replace("v", "")
-
-__version__ = "1.3.2"
 
 setuptools.setup(
     name='struct-bias',
