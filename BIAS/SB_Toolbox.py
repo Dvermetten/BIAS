@@ -322,7 +322,7 @@ class BIAS:
         # download RF models if needed from
         if not os.path.isfile(f"{dirname}/models/RFs/rf_few_classes.pkl"):
             print("Downloading model files, this takes a while..")
-            r = requests.get("https://figshare.com/ndownloader/files/31145971")
+            r = requests.get("https://figshare.com/ndownloader/files/43106839")
             zipfile = ZipFile(BytesIO(r.content))
             zipfile.extractall(f"{dirname}/models/")
 

@@ -9,6 +9,12 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix, f1_score
 from sklearn.model_selection import train_test_split
 
+from zipfile import ZipFile
+import requests
+from io import BytesIO
+import os
+
+
 test_names = [
     "1-spacing",
     "2-spacing",
@@ -70,33 +76,39 @@ def create_RF_rej(
     feature_order=None,
     rf_file_name=None,
 ):
+    dirname = os.path.dirname(__file__)
+    r = requests.get("https://figshare.com/ndownloader/files/30590670")
+    zipfile = ZipFile(BytesIO(r.content))
+    zipfile.extractall(f"{dirname}/models/RFs/")
+
+    
+    r = requests.get("https://figshare.com/ndownloader/files/30591417")
+    zipfile = ZipFile(BytesIO(r.content))
+    zipfile.extractall(f"{dirname}/models/RFs/SB/")
     cols_to_get = included_tests + ["scen"]
-    dt_samples = pd.DataFrame()
+    dt_samples = []
     for sample_size in [30, 50, 100, 600]:
-        for f in glob.glob(f"/mnt/e/Research/SB_DE/SB/S{sample_size}/*.csv"):
+        for f in glob.glob(f"{dirname}/models/RFs/SB/S{sample_size}/*.csv"):
             dt_temp = pd.read_csv(f)
             #             print(len(dt_temp))
             if dt_temp["scen"][0] != "unif":
                 # Remove samples for which no tests reject (non-biased)
                 try:
-                    if sample_size < 99:
-                        dt_rej_temp = pd.read_csv(
-                            f"/mnt/e/Research/SB_DE/SB/Rejections/S{sample_size}_A0.01_Cnone_{f[29:]}",
-                            index_col=0,
-                        )
-                    else:
-                        dt_rej_temp = pd.read_csv(
-                            f"/mnt/e/Research/SB_DE/SB/Rejections/S{sample_size}_A0.01_Cnone_{f[30:]}",
-                            index_col=0,
-                        )
-
+                    dt_rej_temp = pd.read_csv(
+                        f"{dirname}/models/RFs/SB/Rejections/S{sample_size}_A0.01_Cnone_{os.path.basename(f)}",
+                        index_col=0,
+                    )
+                    
                     dt_test_only = dt_rej_temp[included_tests]
                     idxs_save = np.where(dt_test_only.transpose().sum() > 0)
-                    dt_samples = dt_samples.append(
+                    dt_samples.append(
                         dt_rej_temp[cols_to_get].iloc[idxs_save]
                     )
                 except:
                     next
+    dt_samples = pd.concat(dt_samples)
+    print(dt_samples.columns)
+    print(included_tests)
     X = dt_samples[included_tests]
     if use_bias_labels:
         Y = [readable_label_dict[x] for x in dt_samples["scen"]]
@@ -123,6 +135,6 @@ def create_RF_rej(
     print(rf.oob_score_)
 
     if rf_file_name is not None:
-        with open(f"{rf_file_name}.pkl", "wb") as output_file:
+        with open(f"{dirname}/models/RFs/{rf_file_name}.pkl", "wb") as output_file:
             pickle.dump(rf, output_file)
     return rf
