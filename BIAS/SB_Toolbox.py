@@ -320,19 +320,19 @@ class BIAS:
         dirname = os.path.dirname(__file__)
 
         # download RF models if needed from
-        if not os.path.isfile(f"{dirname}/models/RFs/rf_few_classes.pkl"):
+        if not os.path.isfile(f"{dirname}/models/RFs/RFs/rf_few_classes.pkl"):
             print("Downloading model files, this takes a while..")
-            r = requests.get("https://figshare.com/ndownloader/files/31145971")
+            r = requests.get("https://figshare.com/ndownloader/files/43106839")
             zipfile = ZipFile(BytesIO(r.content))
             zipfile.extractall(f"{dirname}/models/")
 
-        with open(f"{dirname}/models/RFs/rf_few_classes.pkl", "rb") as input_file:
+        with open(f"{dirname}/models/RFs/RFs/rf_few_classes.pkl", "rb") as input_file:
             rf = pickle.load(input_file)
         res_class = rf.predict(mean_rej.reshape(1, -1))
         classes = rf.classes_
         prob_classes = rf.predict_proba(mean_rej.reshape(1, -1))
 
-        with open(f"{dirname}/models/RFs/rf_scens.pkl", "rb") as input_file:
+        with open(f"{dirname}/models/RFs/RFs/rf_scens.pkl", "rb") as input_file:
             rf = pickle.load(input_file)
         res_scen = rf.predict(mean_rej.reshape(1, -1))
         scennames = rf.classes_
