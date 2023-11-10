@@ -43,8 +43,3 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
 )
-
-import rpy2.robjects as robjects
-
-dirname = os.path.dirname(__file__)
-robjects.r.source(f"{dirname}/BIAS/install.r", encoding="utf-8")
