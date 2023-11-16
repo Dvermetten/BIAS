@@ -6,20 +6,11 @@
 
 This package requires an R-installation to be present.
 
-The R packages can be installed with the `install_r_packages` command from the BIAS toolbox.
+The R packages will be installed automatically upon first importing BIAS.
 
 Install the BIAS toolbox using pip:
 
     pip install struct-bias
-
-Then install the required R packages
-
-```py
-from BIAS import install_r_packages
-
-#run first time to install required R packages
-install_r_packages()
-```
 
 This installs the following R packages:
 
@@ -47,10 +38,7 @@ This installs the following R packages:
 
 from scipy.optimize import differential_evolution
 import numpy as np
-from BIAS import BIAS, f0, install_r_packages
-
-#run first time to install required R packages
-install_r_packages()
+from BIAS import BIAS, f0
 
 bounds = [(0,1), (0, 1), (0, 1), (0, 1), (0, 1)]
 
