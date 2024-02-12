@@ -6,6 +6,8 @@
 
 This package requires an R-installation to be present.
 
+The package is tested with R 4.1.2 (install from source https://cran.r-project.org/src/base/R-4/R-4.1.2.tar.gz)
+
 The R packages will be installed automatically upon first importing BIAS.
 
 Install the BIAS toolbox using pip:
