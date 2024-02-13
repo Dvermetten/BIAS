@@ -1,5 +1,5 @@
 
-for (x in c("zoo", "lgarch", "Rcpp", "RcppArmadillo", 'nortest', 'data.table', 'goftest', 'ddst')){
+for (x in c("zoo", "lgarch", "Rcpp", "RcppArmadillo", 'nortest', 'data.table', 'goftest')){
     if (!require(x,character.only = TRUE))
     {
     install.packages(x,dep=TRUE)

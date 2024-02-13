@@ -6,6 +6,8 @@
 
 This package requires an R-installation to be present.
 
+The package is tested with R 4.1.2 (install from source https://cran.r-project.org/src/base/R-4/R-4.1.2.tar.gz)
+
 The R packages will be installed automatically upon first importing BIAS.
 
 Install the BIAS toolbox using pip:
@@ -21,9 +23,20 @@ This installs the following R packages:
 - goftest
 - ddst
 
+
 ### Detailed setup using virtual env
 
-1. Download and install R from https://cran.r-project.org/
+1. Download and install R from https://cran.r-project.org/ use version 4.1.2  
+   Example for Ubuntu based system:
+    ```sh
+    sudo wget https://cran.rstudio.com/src/base/R-4/R-4.1.2.tar.gz  
+    tar zxvf R-4.1.2.tar.gz  
+    cd R-4.1.2  
+    ./configure --enable-R-shlib --with-blas --with-lapack
+    make  
+    sudo make install  
+    ```
+    
 2. Download this repository (clone or as zip)
 3. Create a python virtual env `python -m venv env`
 4. Activate the env (in powershell for example: `env/Scripts/Activate.ps1 `)
