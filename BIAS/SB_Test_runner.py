@@ -14,10 +14,10 @@ from sklearn.metrics import (
 
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
+from ddst import ddst_uniform_test
 
 importr('data.table')
 importr('goftest')
-ddst = importr('ddst')
 pwr = importr('PoweR')
 
 robjects.r('''
@@ -330,11 +330,7 @@ def get_test_dict(n_samples, per_dim=True):
         )  # > np.quantile(wassersteins,1-alpha)
 
     def test_ddst(x, alpha=0.01):
-        return list(ddst.ddst_uniform_test(robjects.FloatVector(x), compute_p=True))[
-            -1
-        ][
-            0
-        ]  # < alpha
+        return ddst_uniform_test(x, compute_p=True)['p_value']  # < alpha
 
     def test_pwr(x, test_nr, alpha=0.01):
         return pwr.statcompute(test_nr, robjects.FloatVector(x))[0][0]
