@@ -32,7 +32,7 @@ This installs the following R packages:
     sudo wget https://cran.rstudio.com/src/base/R-4/R-4.1.2.tar.gz  
     tar zxvf R-4.1.2.tar.gz  
     cd R-4.1.2  
-    ./configure --enable-R-shlib  
+    ./configure --enable-R-shlib --with-blas --with-lapack
     make  
     sudo make install  
     ```
