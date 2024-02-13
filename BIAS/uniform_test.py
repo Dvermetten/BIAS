@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.stats import uniform
-
-import numpy as np
+import ctypes
+from numpy.ctypeslib import ndpointer
 
 def ddst_phi(x, j, base=None):
     if base is None:
@@ -43,3 +43,7 @@ def ddst_uniform_test(x, base=None, c=2.4, B=1000, compute_p=False, Dmax=10, *ar
             tmp[i] = tmpC[l]
         result['p_value'] = np.mean(tmp > t)
     return result
+
+
+
+

@@ -14,7 +14,7 @@ from sklearn.metrics import (
 
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
-from ddst import ddst_uniform_test
+from .uniform_test import ddst_uniform_test
 
 importr('data.table')
 importr('goftest')
