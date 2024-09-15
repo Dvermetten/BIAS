@@ -2,7 +2,104 @@
 ## A toolbox for detecting structural bias in continuous optimization heuristics.
 ## With a deep-learning extension to better evaluate the type of bias and gain insights using explainable AI
 
-## Setup
+
+Here's an updated section for your README file that explains how to use the BIAS-Toolbox with Docker, based on the new `Dockerfile`.
+
+---
+
+## Using the BIAS-Toolbox with Docker (Recommended)
+
+The BIAS-Toolbox can be used inside a Docker container, eliminating the need to manually install all dependencies and packages. Follow the steps below to run the Docker image, and to start working with the toolbox in a Jupyter notebook environment.
+
+### Prerequisites
+
+Make sure you have Docker installed on your system. You can install Docker by following the instructions [here](https://docs.docker.com/get-docker/).
+
+### Steps to Run the Docker Image
+
+1. **Run the Docker Container**:
+   Once the image is built, you can run the container. The following command will start the container and expose the Jupyter notebook interface on port `8888`:
+   
+   ```bash
+   docker run -p 8888:8888 bias-toolbox
+   ```
+
+2. **Access the Jupyter Notebook**:
+   After starting the container, you should see a message with instructions to access the Jupyter notebook. It will look something like this:
+   
+   ```
+   To access the notebook, open this file in a browser:
+       http://127.0.0.1:8888/?token=<token>
+   ```
+   
+   Open the provided URL in your web browser to start using the BIAS-Toolbox within Jupyter.
+
+
+### Steps to Build the Dockerfile yourself
+
+1. **Clone the Repository**:
+   If you haven't already cloned the BIAS repository, do so with the following command:
+   
+   ```bash
+   git clone https://github.com/nikivanstein/BIAS.git
+   cd BIAS
+   ```
+
+2. **Build the Docker Image**:
+   The `Dockerfile` included in this repository will install all necessary dependencies (both Python and R), download required data and model files, and set up the environment.
+
+   To build the Docker image, run the following command from the root of the repository (where the `Dockerfile` is located):
+   
+   ```bash
+   docker build -t bias-toolbox .
+   ```
+
+   This will create a Docker image named `bias-toolbox`.
+
+3. **Run the Docker Container**:
+   Once the image is built, you can run the container. The following command will start the container and expose the Jupyter notebook interface on port `8888`:
+   
+   ```bash
+   docker run -p 8888:8888 bias-toolbox
+   ```
+
+4. **Access the Jupyter Notebook**:
+   After starting the container, you should see a message with instructions to access the Jupyter notebook. It will look something like this:
+   
+   ```
+   To access the notebook, open this file in a browser:
+       http://127.0.0.1:8888/?token=<token>
+   ```
+   
+   Open the provided URL in your web browser to start using the BIAS-Toolbox within Jupyter.
+
+
+### Stopping the Container
+
+To stop the running Docker container, press `CTRL+C` in the terminal where the container is running, or find the container's ID with the command:
+
+```bash
+docker ps
+```
+
+Then stop the container with:
+
+```bash
+docker stop <container_id>
+```
+
+### Additional Notes
+
+- The image is configured to use Jupyter Notebook with R and Python integrations.
+- R version `4.1.2` is installed and configured along with the necessary R packages as specified in the `install.r` script.
+- Python dependencies are handled via the `requirements.txt` file.
+
+By using Docker, you can avoid issues related to dependency installation and system setup, providing a consistent environment for running the BIAS-Toolbox.
+
+
+## Setup using Pip
+
+Another way of using the BIAS-Toolbox is by installing the pip package.
 
 This package requires an R-installation to be present.
 
