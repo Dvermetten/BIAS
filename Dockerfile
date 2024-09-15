@@ -57,10 +57,12 @@ RUN pip install --upgrade pip
 #RUN python setup.py install
 RUN pip install -r requirements.txt
 
+RUN apt-get update && apt-get install -y zip unzip
+
 # Download reference value files
 # Download and unzip the files from figshare
 RUN wget https://figshare.com/ndownloader/files/30591411 -O bias_data.zip && \
-    unzip bias_data.zip -d /app/BIAS/ && \
+    unzip bias_data.zip -d /app/BIAS/data/ && \
     rm bias_data.zip
 
 RUN wget https://figshare.com/ndownloader/files/43106839 -O bias_models.zip && \
