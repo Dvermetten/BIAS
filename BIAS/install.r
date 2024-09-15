@@ -1,4 +1,7 @@
 
+r = getOption("repos")
+r["CRAN"] = "http://cran.us.r-project.org"
+options(repos = r)
 for (x in c("zoo", "lgarch", "Rcpp", "RcppArmadillo", 'nortest', 'data.table', 'goftest')){
     if (!require(x,character.only = TRUE))
     {
