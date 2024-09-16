@@ -7,7 +7,7 @@ With a deep-learning extension to better evaluate the type of bias and gain insi
 
 ## Using the BIAS-Toolbox with Docker (Recommended)
 
-The BIAS-Toolbox can be used inside a Docker container, eliminating the need to manually install all dependencies and packages. Follow the steps below to run the Docker image, and to start working with the toolbox in a Jupyter notebook environment.
+The BIAS-Toolbox can be used inside a Docker container, eliminating the need to manually install all dependencies and packages. Follow the steps below to run the Docker image, and to start working with the toolbox in a Jupyter notebook environment. We provide the following prebuild container: `ghcr.io/nikivanstein/bias:master`
 
 ### Prerequisites
 
@@ -19,14 +19,14 @@ Make sure you have Docker installed on your system. You can install Docker by fo
    The following command will pull the prebuild image to your system.
 
    ```bash
-   docker pull ghcr.io/nikivanstein/bias:latest
+   docker pull ghcr.io/nikivanstein/bias:master
    ```
 
 2. **Run the Prebuild Docker Container**:
    The following command will start the container and expose the Jupyter notebook interface on port `8888`:
    
    ```bash
-   docker run -p 8888:8888 ghcr.io/nikivanstein/bias
+   docker run -p 8888:8888 ghcr.io/nikivanstein/bias:master
    ```
 
 3. **Access the Jupyter Notebook**:
