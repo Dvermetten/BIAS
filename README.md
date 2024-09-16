@@ -1,11 +1,9 @@
 # Deep-BIAS: Bias In Algorithms, Structural
 ## A toolbox for detecting structural bias in continuous optimization heuristics.
-## With a deep-learning extension to better evaluate the type of bias and gain insights using explainable AI
+
+With a deep-learning extension to better evaluate the type of bias and gain insights using explainable AI
 
 
-Here's an updated section for your README file that explains how to use the BIAS-Toolbox with Docker, based on the new `Dockerfile`.
-
----
 
 ## Using the BIAS-Toolbox with Docker (Recommended)
 
@@ -17,14 +15,21 @@ Make sure you have Docker installed on your system. You can install Docker by fo
 
 ### Steps to Run the Docker Image
 
-1. **Run the Docker Container**:
-   Once the image is built, you can run the container. The following command will start the container and expose the Jupyter notebook interface on port `8888`:
-   
+1. **Pull the Prebuild Image**
+   The following command will pull the prebuild image to your system.
+
    ```bash
-   docker run -p 8888:8888 bias-toolbox
+   docker pull ghcr.io/nikivanstein/bias:latest
    ```
 
-2. **Access the Jupyter Notebook**:
+2. **Run the Prebuild Docker Container**:
+   The following command will start the container and expose the Jupyter notebook interface on port `8888`:
+   
+   ```bash
+   docker run -p 8888:8888 ghcr.io/nikivanstein/bias
+   ```
+
+3. **Access the Jupyter Notebook**:
    After starting the container, you should see a message with instructions to access the Jupyter notebook. It will look something like this:
    
    ```
