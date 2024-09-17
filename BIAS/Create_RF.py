@@ -81,7 +81,6 @@ def create_RF_rej(
     zipfile = ZipFile(BytesIO(r.content))
     zipfile.extractall(f"{dirname}/models/RFs/")
 
-    
     r = requests.get("https://figshare.com/ndownloader/files/30591417")
     zipfile = ZipFile(BytesIO(r.content))
     zipfile.extractall(f"{dirname}/models/RFs/SB/")
@@ -98,12 +97,10 @@ def create_RF_rej(
                         f"{dirname}/models/RFs/SB/Rejections/S{sample_size}_A0.01_Cnone_{os.path.basename(f)}",
                         index_col=0,
                     )
-                    
+
                     dt_test_only = dt_rej_temp[included_tests]
                     idxs_save = np.where(dt_test_only.transpose().sum() > 0)
-                    dt_samples.append(
-                        dt_rej_temp[cols_to_get].iloc[idxs_save]
-                    )
+                    dt_samples.append(dt_rej_temp[cols_to_get].iloc[idxs_save])
                 except:
                     next
     dt_samples = pd.concat(dt_samples)
