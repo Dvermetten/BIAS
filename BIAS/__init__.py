@@ -3,7 +3,7 @@ import rpy2.robjects as robjects
 
 
 # get the value of the environment variable HOME
-R_installed = os.getenv('R_PACKAGES_INSTALLED')
+R_installed = os.getenv("R_PACKAGES_INSTALLED")
 
 if R_installed != "Yes":
     dirname = os.path.dirname(__file__)
