@@ -342,6 +342,7 @@ class BIAS:
             print(
                 f"Detected bias which seems to be related to {res_class} ({np.max(prob_classes):.2f} probability)."
                 + f"The rejections seems to be most similar to the {res_scen} scenario ({np.max(prob_scens):.2f} probability)."
+                + "\nWe strongly advise you to now use the `predict_deep` function to more accurately predict the Structural Bias type."
             )
         return {
             "Class": res_class[0],

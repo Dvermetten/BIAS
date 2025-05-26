@@ -14,13 +14,14 @@ from sklearn.metrics import (
 
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
+from .uniform_test import ddst_uniform_test
 
-importr('data.table')
-importr('goftest')
-ddst = importr('ddst')
-pwr = importr('PoweR')
+importr("data.table")
+importr("goftest")
+pwr = importr("PoweR")
 
-robjects.r('''
+robjects.r(
+    """
 R_test_ad <- function(x, max_=1) {
     return(ad.test(x, "punif", max=max_, min=0)[[2]])
 }
@@ -34,7 +35,9 @@ R_test_norm <- function(x, test='Shapiro') {
         return(AutoSEARCH::jb.test(qnorm_temp)$p.value)
     }
 }
-''')
+"""
+)
+
 
 def get_mi(X, type_="med"):
     mutuals = []
@@ -330,11 +333,7 @@ def get_test_dict(n_samples, per_dim=True):
         )  # > np.quantile(wassersteins,1-alpha)
 
     def test_ddst(x, alpha=0.01):
-        return list(ddst.ddst_uniform_test(robjects.FloatVector(x), compute_p=True))[
-            -1
-        ][
-            0
-        ]  # < alpha
+        return ddst_uniform_test(x, nr=1000, compute_p=True)["p_value"]  # < alpha
 
     def test_pwr(x, test_nr, alpha=0.01):
         return pwr.statcompute(test_nr, robjects.FloatVector(x))[0][0]
